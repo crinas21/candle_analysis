@@ -1,18 +1,74 @@
+import requests
+from . import utils
+from django.conf import settings
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import FileSystemStorage
 from .forms import CustomUserCreationForm  # Import the custom form
+
+
+def home(request):
+    return render(request, 'home.html', {})
+
+
+def search(request):
+    # Check if the request is AJAX and GET
+    if request.method == 'GET' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        query = request.GET.get('symbol', '').strip()
+        if query:
+            matches = utils.get_matches(query)
+            return JsonResponse({'matches': matches}, status=200)
+        else:
+            return JsonResponse({'matches': []}, status=200)
+    else:
+        # If not an AJAX request, show an error or a fallback page
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def matches(request):
+    if request.method == 'GET':
+        query = request.GET.get('symbol', '').strip()
+        if query:
+            matches = utils.get_matches(query)
+            return render(request, 'matches.html', {'matches': matches})
+        else:
+            return render(request, 'matches.html')
+    else:
+        pass
+
+    
+def analysis(request):
+    if request.method == 'GET':
+        symbol = request.GET.get('symbol', '').strip()
+        return render(request, 'analysis.html', {'instrument': symbol})
+    else:
+        pass
+    
+
+def imageinsert(request):
+    if request.method == 'POST':
+        uploaded_file = request.FILES.get('image')
+        if uploaded_file:
+            fs = FileSystemStorage()
+            filename = fs.save(uploaded_file.name, uploaded_file)
+            file_url = fs.url(filename)
+            # CNN logic
+            messages.success(request, "Image successfully uploaded")
+            return render(request, 'imageanalysis.html', {})
+        else:
+            messages.error(request, "No image uploaded")
+            return render(request, 'imageinsert.html')
+    else:
+        return render(request, 'imageinsert.html')
+    
 
 @login_required
 def history(request):
     return render(request, 'history.html')
 
-def home(request):
-    # stocks = Stock.objects.all()
-    # portfolio = Portfolio.objects.get(user=request.user)
-    # return render(request, 'home.html', {'stocks': stocks, 'portfolio': portfolio})
-    return render(request, 'home.html', {})
 
 def signup(request):
     if request.method == 'POST':
@@ -25,7 +81,8 @@ def signup(request):
         form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
+
 def signout(request):
-    logout(request)  # Logs out the user
+    logout(request)
     messages.success(request, "You have been successfully logged out.")
     return redirect('/')
