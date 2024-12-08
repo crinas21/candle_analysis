@@ -144,3 +144,8 @@ LOGOUT_REDIRECT_URL = '/signin/'  # Redirect after logout
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'analysis.User'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+ALPHA_VANTAGE_API_KEY = 'M5OT8MA8HU88JKTD'
