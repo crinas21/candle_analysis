@@ -2,11 +2,31 @@
 
 {% block content %}
 <h1>Best Matches</h1>
-<table class="table table-striped">
+<style>
+    /* Highlight the row on hover */
+    .table-hover tbody tr:hover {
+        background-color: #8ae8ff;
+    }
+
+    /* Change symbol text color and add underline on hover */
+    .table-hover tbody tr:hover td:first-child a {
+        color: #007bff;
+        text-decoration: underline;
+    }
+
+    /* Default link styling for the symbol */
+    .table-hover tbody tr td:first-child a {
+        color: inherit; /* Keep the normal text color */
+        text-decoration: none; /* Remove underline */
+    }
+</style>
+
+<table class="table table-striped table-hover">
     <thead>
         <tr>
             <th>Symbol</th>
             <th>Name</th>
+            <th>Type</th>
             <th>Region</th>
             <th>Currency</th>
         </tr>
@@ -16,6 +36,7 @@
         <tr>
             <td><a href="{% url 'analysis' %}?symbol={{ match.symbol }}">{{ match.symbol }}</a></td>
             <td>{{ match.name }}</td>
+            <td>{{ match.type }}</td>
             <td>{{ match.region }}</td>
             <td>{{ match.currency }}</td>
         </tr>
