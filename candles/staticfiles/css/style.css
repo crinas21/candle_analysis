@@ -1,0 +1,17 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+main {
+    flex: 1; /* Fills the remaining space between the navbar and footer */
+}
+
+footer {
+    background-color: #212529;
+    color: black;
+    text-align: center;
+    padding: 10px 0;
+}
