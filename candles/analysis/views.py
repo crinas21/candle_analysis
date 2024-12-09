@@ -37,15 +37,17 @@ def matches(request):
         else:
             return render(request, 'matches.html')
     else:
-        pass
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
     
 def analysis(request):
     if request.method == 'GET':
         symbol = request.GET.get('symbol', '').strip()
-        return render(request, 'analysis.html', {'instrument': symbol})
+        days = 100 # TODO: Get from user input
+        data_points = utils.get_symbol_data(symbol, days)
+        return render(request, 'analysis.html', {'symbol': symbol, 'data_points': data_points})
     else:
-        pass
+        return JsonResponse({'error': 'Invalid request'}, status=400)
     
 
 def imageinsert(request):

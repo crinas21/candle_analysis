@@ -148,7 +148,7 @@
                                 matches.forEach((match) => {
                                     const item = document.createElement("a");
                                     item.classList.add("dropdown-item");
-                                    item.href = `/matches/?symbol=${encodeURIComponent(match.symbol)}`;
+                                    item.href = `/analysis/?symbol=${encodeURIComponent(match.symbol)}`;
                                     item.textContent = `${match.symbol} - ${match.name}`;
                                     autocompleteList.appendChild(item);
                                 });
