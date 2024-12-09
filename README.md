@@ -3,3 +3,4 @@
 ## Libraries
 - django
 - psycopg2
+- whitenoise
