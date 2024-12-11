@@ -44,8 +44,11 @@ def analysis(request):
     if request.method == 'GET':
         symbol = request.GET.get('symbol', '').strip()
         days = 100 # TODO: Get from user input
-        data_points = utils.get_symbol_data(symbol, days)
-        return render(request, 'analysis.html', {'symbol': symbol, 'data_points': data_points})
+        alpha_data = utils.get_alpha_data(symbol, days)
+        table_data = utils.get_table_data(alpha_data)
+        chart_html = utils.get_chart_data(alpha_data)
+        
+        return render(request, 'analysis.html', {'symbol': symbol, 'table_data': table_data, 'chart_html': chart_html})
     else:
         return JsonResponse({'error': 'Invalid request'}, status=400)
     
