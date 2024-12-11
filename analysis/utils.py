@@ -63,7 +63,7 @@ def get_table_data(alpha_data):
     return results
 
 
-def get_chart_data(alpha_data):
+def get_chart_html(symbol, alpha_data):
     df = pd.DataFrame.from_dict(alpha_data, orient='index')
     df.index = pd.to_datetime(df.index)
     df.columns = ['open', 'high', 'low', 'close', 'volume']
@@ -77,12 +77,35 @@ def get_chart_data(alpha_data):
     df = df.sort_index(ascending=False)
     df = df.reset_index()  # Reset the index and add it as a column
     df.rename(columns={'index': 'date'}, inplace=True)
+    df['date'] = pd.to_datetime(df['date']).dt.date
+
+    hover_text = [
+        f"<b>Date:</b> {row['date']}<br>"
+        f"<b>Open:</b> {row['open']}<br>"
+        f"<b>High:</b> {row['high']}<br>"
+        f"<b>Low:</b> {row['low']}<br>"
+        f"<b>Close:</b> {row['close']}<br>"
+        f"<b>Volume:</b> {row['volume']}<br>"
+        f"<b>[Pattern]: </b><span style='color:green'>Bullish</span><br>"
+        for _, row in df.iterrows()
+    ]
 
     fig = go.Figure(data=[go.Candlestick(x=df['date'],
                 open=df['open'],
                 high=df['high'],
                 low=df['low'],
-                close=df['close'])])
+                close=df['close'],
+                hovertext=hover_text,
+                hoverinfo="text",
+                increasing=dict(line=dict(width=1)), # Decrease border weight
+                decreasing=dict(line=dict(width=1))
+        )])
+    
+    fig.update_layout(
+        xaxis=dict(showgrid=True),
+        yaxis=dict(showgrid=True),
+        height=800
+    )
     chart_html = fig.to_html(full_html=False)  # Only return chart content
     return chart_html
 
