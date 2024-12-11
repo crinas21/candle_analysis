@@ -46,7 +46,7 @@ def analysis(request):
         days = 100 # TODO: Get from user input
         alpha_data = utils.get_alpha_data(symbol, days)
         table_data = utils.get_table_data(alpha_data)
-        chart_html = utils.get_chart_data(alpha_data)
+        chart_html = utils.get_chart_html(symbol, alpha_data)
         
         return render(request, 'analysis.html', {'symbol': symbol, 'table_data': table_data, 'chart_html': chart_html})
     else:
