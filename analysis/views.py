@@ -11,7 +11,7 @@ from .forms import CustomUserCreationForm  # Import the custom form
 
 
 def home(request):
-    return render(request, 'home.html', {})
+    return render(request, 'home.html')
 
 
 def search(request):
@@ -45,10 +45,10 @@ def analysis(request):
         symbol = request.GET.get('symbol', '').strip()
         days = 100 # TODO: Get from user input
         alpha_data = utils.get_alpha_data(symbol, days)
-        table_data = utils.get_table_data(alpha_data)
-        chart_html = utils.get_chart_html(symbol, alpha_data)
+        pattern_data = utils.get_pattern_data(alpha_data)
+        chart_html = utils.get_chart_html(pattern_data)
         
-        return render(request, 'analysis.html', {'symbol': symbol, 'table_data': table_data, 'chart_html': chart_html})
+        return render(request, 'analysis.html', {'symbol': symbol, 'table_data': pattern_data, 'chart_html': chart_html})
     else:
         return JsonResponse({'error': 'Invalid request'}, status=400)
     

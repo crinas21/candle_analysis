@@ -48,36 +48,40 @@ def get_alpha_data(symbol, days):
     return data
 
 
-def get_table_data(alpha_data):
-    results = [
+def get_pattern_data(alpha_data):
+    pattern_data = [
         {
             'date': date,
-            'open': alpha_data.get(date).get('1. open'),
-            'high': alpha_data.get(date).get('2. high'),
-            'low': alpha_data.get(date).get('3. low'),
-            'close': alpha_data.get(date).get('4. close'),
-            'volume': alpha_data.get(date).get('5. volume')
+            'open': round(float(alpha_data.get(date).get('1. open')), 2),
+            'high': round(float(alpha_data.get(date).get('2. high')), 2),
+            'low': round(float(alpha_data.get(date).get('3. low')), 2),
+            'close': round(float(alpha_data.get(date).get('4. close')), 2),
+            'volume': int(alpha_data.get(date).get('5. volume')),
+            'bullish': '',
+            'bearish': ''
         }
         for date in alpha_data
     ]
-    return results
+    pattern_data = all_patterns(pattern_data)
+    for candlestick in pattern_data:
+        candlestick['bullish'] = candlestick['bullish'].rstrip(', ')
+        candlestick['bearish'] = candlestick['bearish'].rstrip(', ')
+    return pattern_data
 
 
-def get_chart_html(symbol, alpha_data):
-    df = pd.DataFrame.from_dict(alpha_data, orient='index')
-    df.index = pd.to_datetime(df.index)
-    df.columns = ['open', 'high', 'low', 'close', 'volume']
+def get_chart_html(pattern_data):
+    df = pd.DataFrame(pattern_data)
+    df['date'] = pd.to_datetime(df['date']).dt.date
     df = df.astype({
         'open': 'float',
         'high': 'float',
         'low': 'float',
         'close': 'float',
-        'volume': 'int'
+        'volume': 'int',
+        'bullish': 'str',
+        'bearish': 'str'
     })
-    df = df.sort_index(ascending=False)
-    df = df.reset_index()  # Reset the index and add it as a column
-    df.rename(columns={'index': 'date'}, inplace=True)
-    df['date'] = pd.to_datetime(df['date']).dt.date
+    df = df.sort_values(by='date', ascending=False)
 
     hover_text = [
         f"<b>Date:</b> {row['date']}<br>"
@@ -86,7 +90,8 @@ def get_chart_html(symbol, alpha_data):
         f"<b>Low:</b> {row['low']}<br>"
         f"<b>Close:</b> {row['close']}<br>"
         f"<b>Volume:</b> {row['volume']}<br>"
-        f"<b>[Pattern]: </b><span style='color:green'>Bullish</span><br>"
+        f"<b><span style='color:green'>Bullish:</span></b> {row['bullish']}<br>"
+        f"<b><span style='color:red'>Bearish:</span></b> {row['bearish']}<br>"
         for _, row in df.iterrows()
     ]
 
@@ -110,6 +115,35 @@ def get_chart_html(symbol, alpha_data):
     return chart_html
 
 
+def all_patterns(data):
+    pattern_data = data
+    pattern_data = hammer(pattern_data)
+    pattern_data = three_black_crows(pattern_data)
+    return pattern_data
 
-def three_black_crows(points):
-    pass
+
+def hammer(data):
+    for candlestick in data:
+        open = candlestick['open']
+        close = candlestick['close']
+        high = candlestick['high']
+        low = candlestick['low']
+
+        real_body = abs(open - close)
+        lower_wick = min(open, close) - low
+        upper_wick = high - max(open, close)
+        total_range = high - low
+
+        is_small_body = real_body <= total_range * 0.25
+        is_long_lower_wick = lower_wick >= real_body * 2 
+        is_small_upper_wick = upper_wick <= real_body * 0.3 # Needs work
+
+        if is_small_body and is_long_lower_wick and is_small_upper_wick:
+            candlestick['bullish'] += 'Hammer, '
+
+    return data
+
+
+
+def three_black_crows(data):
+    return data
