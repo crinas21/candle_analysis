@@ -10,7 +10,7 @@ urlpatterns = [
     path('matches/', views.matches, name='matches'),
     path('analysis/', views.analysis, name='analysis'),
     path('imageinsert/', views.imageinsert, name='imageinsert'),
-    path('imageanalysis/', views.imageinsert, name='imageanalysis'),
+    path('imageanalysis/', views.imageanalysis, name='imageanalysis'),
     path('history/', views.history, name='history'),
     path('signin/', auth_views.LoginView.as_view(template_name='signin.html'), name='signin'),
     path('signout/', views.signout, name='signout'),
