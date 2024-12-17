@@ -1,6 +1,5 @@
 import requests
 from django.conf import settings
-import pandas as pd
 import plotly.graph_objects as go
 
 
@@ -66,49 +65,51 @@ def get_pattern_data(alpha_data):
 
 
 def get_chart_html(pattern_data):
-    df = pd.DataFrame(pattern_data)
-    df['date'] = pd.to_datetime(df['date']).dt.date
-    df = df.astype({
-        'open': 'float',
-        'high': 'float',
-        'low': 'float',
-        'close': 'float',
-        'volume': 'int',
-        'bullish': 'str',
-        'bearish': 'str'
-    })
-    df = df.sort_values(by='date', ascending=False)
+    sorted_data = sorted(pattern_data, key=lambda x: x['date'], reverse=True)
+
+    dates = [item['date'] for item in sorted_data]
+    opens = [float(item['open']) for item in sorted_data]
+    highs = [float(item['high']) for item in sorted_data]
+    lows = [float(item['low']) for item in sorted_data]
+    closes = [float(item['close']) for item in sorted_data]
+    volumes = [int(item['volume']) for item in sorted_data]
+    bullish = [item['bullish'] for item in sorted_data]
+    bearish = [item['bearish'] for item in sorted_data]
 
     hover_text = [
-        f"<b>Date:</b> {row['date']}<br>"
-        f"<b>Open:</b> {row['open']}<br>"
-        f"<b>High:</b> {row['high']}<br>"
-        f"<b>Low:</b> {row['low']}<br>"
-        f"<b>Close:</b> {row['close']}<br>"
-        f"<b>Volume:</b> {row['volume']}<br>"
-        f"<b><span style='color:green'>Bullish:</span></b> {row['bullish']}<br>"
-        f"<b><span style='color:red'>Bearish:</span></b> {row['bearish']}<br>"
-        for _, row in df.iterrows()
+        f"<b>Date:</b> {date}<br>"
+        f"<b>Open:</b> {open_}<br>"
+        f"<b>High:</b> {high}<br>"
+        f"<b>Low:</b> {low}<br>"
+        f"<b>Close:</b> {close}<br>"
+        f"<b>Volume:</b> {volume}<br>"
+        f"<b><span style='color:green'>Bullish:</span></b> {bullish_}<br>"
+        f"<b><span style='color:red'>Bearish:</span></b> {bearish_}<br>"
+        for date, open_, high, low, close, volume, bullish_, bearish_ in zip(
+            dates, opens, highs, lows, closes, volumes, bullish, bearish
+        )
     ]
 
-    fig = go.Figure(data=[go.Candlestick(x=df['date'],
-                open=df['open'],
-                high=df['high'],
-                low=df['low'],
-                close=df['close'],
-                hovertext=hover_text,
-                hoverinfo="text",
-                increasing=dict(line=dict(width=1)), # Decrease border weight
-                decreasing=dict(line=dict(width=1))
-        )])
-    
+    fig = go.Figure(data=[go.Candlestick(
+        x=dates,
+        open=opens,
+        high=highs,
+        low=lows,
+        close=closes,
+        hovertext=hover_text,
+        hoverinfo="text",
+        increasing=dict(line=dict(width=1)),  # Decrease border weight
+        decreasing=dict(line=dict(width=1))
+    )])
+
     fig.update_layout(
         xaxis=dict(showgrid=True),
         yaxis=dict(showgrid=True),
         height=800
     )
-    chart_html = fig.to_html(full_html=False)  # Only return chart content
+    chart_html = fig.to_html(full_html=False) # Only return chart content
     return chart_html
+
 
 
 def all_patterns(data):
