@@ -1,4 +1,3 @@
-import asyncio
 from . import utils
 from django.conf import settings
 from django.http import JsonResponse
@@ -42,29 +41,25 @@ def matches(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
-async def analysis(request):
+def analysis(request):
     if request.method == 'GET':
         symbol = request.GET.get('symbol', '').strip()
         cache_timeout = 600 # Cache data for 10 minutes
-        days = 100  # TODO: Get from user input
-        
-        # Get rows_per_page from user input, default to 10 if not provided or invalid
-        try:
-            rows_per_page = int(request.GET.get('rows_per_page', 10))
-            rows_per_page = max(rows_per_page, 10)  # Ensure a minimum of 10 rows
-        except ValueError:
-            rows_per_page = 10  # Default to 10 if input is invalid
-
-        page_number = int(request.GET.get('page', 1))  # Get current page number
+        days = max(int(request.GET.get('days', 30)), 1)
+        rows_per_page = max(int(request.GET.get('rows_per_page', 10)), 10)
+        page_number = int(request.GET.get('page', 1))
 
         # Use cache to store API data for 10 minutes (done to reduce API calls)
-        data_cache_key = f"alpha_data_{symbol}_{days}"
-        alpha_data = cache.get(f"alpha_data_{symbol}_{days}")
+        data_cache_key = f"alpha_data_{symbol}_compact" if days <= 100 else f"alpha_data_{symbol}_full"
+        alpha_data = cache.get(data_cache_key)
         if not alpha_data:
-            alpha_data = await asyncio.to_thread(utils.get_alpha_data, symbol, days)
+            compact = True if days <= 100 else False
+            alpha_data = utils.get_alpha_data(symbol, compact)
             if not alpha_data:
                 return render(request, 'error.html')
             cache.set(data_cache_key, alpha_data, timeout=cache_timeout)
+
+        alpha_data = dict(sorted(alpha_data.items(), key=lambda x: x[0], reverse=True)[:days]) # Get only the days specified
 
         pattern_data = utils.get_pattern_data(alpha_data)
 
@@ -72,7 +67,7 @@ async def analysis(request):
         paginator = Paginator(pattern_data, rows_per_page)
         current_page_data = paginator.get_page(page_number)
 
-        chart_cache_key = f"chart_{symbol}"
+        chart_cache_key = f"chart_{symbol}_{days}"
         chart_html = cache.get(chart_cache_key)
         if not chart_html:
             chart_html = utils.get_chart_html(pattern_data)
@@ -84,6 +79,7 @@ async def analysis(request):
             'chart_html': chart_html,
             'paginator': paginator,
             'rows_per_page': rows_per_page,
+            'days': days,
         })
     else:
         return JsonResponse({'error': 'Invalid request'}, status=400)

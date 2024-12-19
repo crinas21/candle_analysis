@@ -28,11 +28,12 @@ def get_matches(query):
     return matches
 
 
-def get_alpha_data(symbol, days):
+def get_alpha_data(symbol, compact):
+    print(f"API Called for Symbol: {symbol}, Compact: {compact}")
     params = {
         'function': 'TIME_SERIES_DAILY',
         'symbol': symbol,
-        'outputsize': 'compact' if days <= 100 else 'full',
+        'outputsize': 'compact' if compact else 'full',
         'apikey': settings.ALPHA_VANTAGE_API_KEY,
     }
     response = requests.get('https://www.alphavantage.co/query', params=params)
