@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6=q+suxfnywdha64dy)ekz+%z*+0_zo^y!n@c-jn5(aj72u55p'
+SECRET_KEY = config('DJANGO_SECRET_KEY', default='default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -87,13 +88,13 @@ WSGI_APPLICATION = 'candles.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'neondb',
-        'USER': 'neondb_owner',
-        'PASSWORD': '4vWewTKzgq1j',
-        'HOST': 'ep-damp-cell-a7tgks06.ap-southeast-2.aws.neon.tech',
-        'PORT': '5432',
+        'NAME': config('DB_NAME', default=''),
+        'USER': config('DB_USER', default=''),
+        'PASSWORD': config('DB_PASSWORD', default=''),
+        'HOST': config('DB_HOST', default=''),
+        'PORT': config('DB_PORT', default='5432'),
         'OPTIONS': {
-            'sslmode': 'require',  # Enforces SSL connection
+            'sslmode': 'require',
         },
     }
 }
@@ -150,4 +151,4 @@ AUTH_USER_MODEL = 'analysis.User'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-ALPHA_VANTAGE_API_KEY = 'M5OT8MA8HU88JKTD'
+ALPHA_VANTAGE_API_KEY = config('ALPHA_VANTAGE_API_KEY', default='')
