@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}
-Analysis - Candalysis
-{% endblock %}
-
 {% block content %}
 <h1>Instrument Analysis: {{ symbol }}</h1>
 
-<!-- Rows per page form -->
+<!-- Days and Rows per page form -->
 <form method="get" action="">
     <input type="hidden" name="symbol" value="{{ symbol }}">
+    <label for="days">Days:</label>
+    <input type="number" name="days" id="days" value="{{ days }}" min="1">
     <label for="rows_per_page">Rows per page:</label>
     <input type="number" name="rows_per_page" id="rows_per_page" value="{{ rows_per_page }}" min="10">
     <button type="submit" class="btn btn-primary btn-sm">Set</button>
@@ -50,17 +48,17 @@ Analysis - Candalysis
     <ul class="pagination">
         {% if table_data.has_previous %}
         <li class="page-item">
-            <a class="page-link" href="?symbol={{ symbol }}&rows_per_page={{ rows_per_page }}&page={{ table_data.previous_page_number }}">Previous</a>
+            <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ table_data.previous_page_number }}">Previous</a>
         </li>
         {% endif %}
         {% for num in table_data.paginator.page_range %}
         <li class="page-item {% if table_data.number == num %}active{% endif %}">
-            <a class="page-link" href="?symbol={{ symbol }}&rows_per_page={{ rows_per_page }}&page={{ num }}">{{ num }}</a>
+            <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ num }}">{{ num }}</a>
         </li>
         {% endfor %}
         {% if table_data.has_next %}
         <li class="page-item">
-            <a class="page-link" href="?symbol={{ symbol }}&rows_per_page={{ rows_per_page }}&page={{ table_data.next_page_number }}">Next</a>
+            <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ table_data.next_page_number }}">Next</a>
         </li>
         {% endif %}
     </ul>
