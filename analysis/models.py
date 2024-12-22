@@ -15,3 +15,8 @@ class History(models.Model):
 
     def __str__(self):
         return f"{self.user.username} searched for {self.symbol} ({self.days} days) on {self.search_date}"
+    
+
+class WatchlistItems(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="watchlist_items", null=True, blank=True)
+    symbol = models.CharField(max_length=10, default="UNKNOWN")

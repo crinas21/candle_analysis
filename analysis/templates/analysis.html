@@ -3,15 +3,25 @@
 {% block content %}
 <h1>Instrument Analysis: {{ symbol }}</h1>
 
-<!-- Days and Rows per page form -->
-<form method="get" action="">
-    <input type="hidden" name="symbol" value="{{ symbol }}">
-    <label for="days">Days:</label>
-    <input type="number" name="days" id="days" value="{{ days }}" min="1">
-    <label for="rows_per_page">Rows per page:</label>
-    <input type="number" name="rows_per_page" id="rows_per_page" value="{{ rows_per_page }}" min="10">
-    <button type="submit" class="btn btn-primary btn-sm">Set</button>
-</form>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Days and Rows per page form -->
+    <form method="get" action="" class="d-flex align-items-center">
+        <input type="hidden" name="symbol" value="{{ symbol }}">
+        <label for="days" class="me-2">Days:</label>
+        <input type="number" name="days" id="days" value="{{ days }}" min="1" class="form-control form-control-sm me-3" style="width: 80px;">
+        <label for="rows_per_page" class="me-2">Rows per page:</label>
+        <input type="number" name="rows_per_page" id="rows_per_page" value="{{ rows_per_page }}" min="10" class="form-control form-control-sm me-3" style="width: 80px;">
+        <button type="submit" class="btn btn-primary btn-sm">Set</button>
+    </form>
+
+    <!-- Add to Watchlist button -->
+    <form id="add-to-watchlist-form" method="post" action="{% url 'add_to_watchlist' %}">
+        {% csrf_token %}
+        <input type="hidden" name="symbol" value="{{ symbol }}">
+        <input type="hidden" name="days" value="{{ days }}">
+        <button type="submit" class="btn btn-success btn-sm">Add to Watchlist</button>
+    </form>
+</div>
 
 <!-- Table -->
 <table class="table table-striped table-hover mt-3">

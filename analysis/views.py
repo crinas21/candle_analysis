@@ -1,5 +1,5 @@
 from . import utils
-from .models import History
+from .models import History, WatchlistItems
 from .forms import CustomUserCreationForm
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
@@ -112,8 +112,44 @@ def imageanalysis(request):
     return render(request, 'imageanalysis.html')
 
 
+@login_required
+def add_to_watchlist(request):
+    if request.method == 'POST':
+        symbol = request.POST.get('symbol', '').strip()
+        days = request.POST.get('days', 30).strip()
+        if not symbol:
+            messages.error(request, "Invalid symbol.")
+            return redirect(f"{reverse('analysis')}?symbol={symbol}&days={days}")
+
+        exists = WatchlistItems.objects.filter(user=request.user, symbol=symbol).exists()
+        if not exists:
+            WatchlistItems.objects.create(user=request.user, symbol=symbol)
+            messages.success(request, f"{symbol} has been added to your watchlist.")
+        else:
+            messages.warning(request, f"{symbol} is already in your watchlist.")
+        return redirect(f"{reverse('analysis')}?symbol={symbol}&days={days}")
+    else:
+        messages.error(request, "Invalid request method.")
+        return redirect(f"{reverse('analysis')}?symbol={symbol}&days={days}")
+
+
+
+@login_required
 def watchlist(request):
-    return render(request, 'watchlist.html')
+    watchlist_items = WatchlistItems.objects.filter(user=request.user)
+    return render(request, 'watchlist.html', {'watchlist_items': watchlist_items})
+
+
+@login_required
+def remove_from_watchlist(request):
+    if request.method == 'POST':
+        symbol = request.POST.get('symbol', '').strip()
+        WatchlistItems.objects.filter(user=request.user, symbol=symbol).delete()
+        messages.success(request, f"{symbol} has been removed from your watchlist.")
+        return redirect('watchlist')
+    else:
+        messages.error(request, "Invalid request.")
+        return redirect('watchlist')
 
 
 @login_required
