@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', include('analysis.urls')),
     path('admin/', admin.site.urls),
-    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
+    path('logo.png', RedirectView.as_view(url='/static/logo.png', permanent=True)),
 ]
 
 # Serve static files during development

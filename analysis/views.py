@@ -1,14 +1,16 @@
 from . import utils
-from django.conf import settings
+from .models import History
+from .forms import CustomUserCreationForm
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.core.cache import cache
 from django.core.files.storage import FileSystemStorage
-from .forms import CustomUserCreationForm  # Import the custom form
+from django.core.paginator import Paginator
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 
 def home(request):
@@ -49,6 +51,12 @@ def analysis(request):
         rows_per_page = max(int(request.GET.get('rows_per_page', 10)), 10)
         page_number = int(request.GET.get('page', 1))
 
+        crnt_search = f"{symbol}_{days}"
+        prev_search = cache.get("prev_search")
+        if crnt_search != prev_search and request.user.is_authenticated:
+            History.objects.create(user=request.user, symbol=symbol, days=days)
+            cache.set("prev_search", crnt_search, timeout=cache_timeout)
+
         # Use cache to store API data for 10 minutes (done to reduce API calls)
         data_cache_key = f"alpha_data_{symbol}_compact" if days <= 100 else f"alpha_data_{symbol}_full"
         alpha_data = cache.get(data_cache_key)
@@ -60,10 +68,8 @@ def analysis(request):
             cache.set(data_cache_key, alpha_data, timeout=cache_timeout)
 
         alpha_data = dict(sorted(alpha_data.items(), key=lambda x: x[0], reverse=True)[:days]) # Get only the days specified
-
         pattern_data = utils.get_pattern_data(alpha_data)
 
-        # Paginate the data
         paginator = Paginator(pattern_data, rows_per_page)
         current_page_data = paginator.get_page(page_number)
 
@@ -106,9 +112,22 @@ def imageanalysis(request):
     return render(request, 'imageanalysis.html')
 
 
+def watchlist(request):
+    return render(request, 'watchlist.html')
+
+
 @login_required
 def history(request):
-    return render(request, 'history.html')
+    search_history = History.objects.filter(user=request.user).order_by('-search_date')
+    return render(request, 'history.html', {'search_history': search_history})
+
+
+@login_required
+def clear_history(request):
+    if request.method == 'POST':
+        History.objects.filter(user=request.user).delete()
+        messages.success(request, "Your search history has been cleared.")
+    return HttpResponseRedirect(reverse('history'))
 
 
 def signup(request):

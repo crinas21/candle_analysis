@@ -37,8 +37,8 @@ Matches - Candalysis
     </thead>
     <tbody>
         {% for match in matches %}
-        <tr>
-            <td><a href="{% url 'analysis' %}?symbol={{ match.symbol }}">{{ match.symbol }}</a></td>
+        <tr style="cursor: pointer;" data-href="{% url 'analysis' %}?symbol={{ match.symbol|escapejs }}">
+            <td><a href="{% url 'analysis' %}?symbol={{ record.symbol }}">{{ match.symbol }}</a></td>
             <td>{{ match.name }}</td>
             <td>{{ match.type }}</td>
             <td>{{ match.region }}</td>
@@ -47,4 +47,14 @@ Matches - Candalysis
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('tr[data-href]').forEach(row => {
+            row.addEventListener('click', function () {
+                window.location.href = this.dataset.href;
+            });
+        });
+    });
+</script>
 {% endblock %}
