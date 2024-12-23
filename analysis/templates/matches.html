@@ -38,7 +38,7 @@ Matches - Candalysis
     <tbody>
         {% for match in matches %}
         <tr style="cursor: pointer;" data-href="{% url 'analysis' %}?symbol={{ match.symbol|escapejs }}">
-            <td><a href="{% url 'analysis' %}?symbol={{ record.symbol }}">{{ match.symbol }}</a></td>
+            <td><a href="{% url 'analysis' %}?symbol={{ match.symbol }}">{{ match.symbol }}</a></td>
             <td>{{ match.name }}</td>
             <td>{{ match.type }}</td>
             <td>{{ match.region }}</td>

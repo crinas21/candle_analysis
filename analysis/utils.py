@@ -53,15 +53,12 @@ def get_pattern_data(alpha_data):
             'low': round(float(alpha_data.get(date).get('3. low')), 2),
             'close': round(float(alpha_data.get(date).get('4. close')), 2),
             'volume': int(alpha_data.get(date).get('5. volume')),
-            'bullish': '',
-            'bearish': ''
+            'bullish': set(),
+            'bearish': set()
         }
         for date in alpha_data
     ]
-    pattern_data = all_patterns(pattern_data)
-    for candlestick in pattern_data:
-        candlestick['bullish'] = candlestick['bullish'].rstrip(', ')
-        candlestick['bearish'] = candlestick['bearish'].rstrip(', ')
+    pattern_data = identify_patterns(pattern_data)
     return pattern_data
 
 
@@ -112,36 +109,60 @@ def get_chart_html(pattern_data):
     return chart_html
 
 
+def identify_patterns(data):
+    n = len(data)
+    for i in range(n):
+        # Check single-candlestick patterns
+        if is_hammer(data[i]):
+            data[i]['bullish'].add('Hammer')
 
-def all_patterns(data):
-    pattern_data = data
-    pattern_data = hammer(pattern_data)
-    pattern_data = three_black_crows(pattern_data)
-    return pattern_data
+        # Check two-candlestick patterns
+        if i < n - 1:
+            pass
+        
+        # Check three-candlestick patterns
+        if i < n - 2:
+            if is_three_black_crows(data[i:i+3]):  # Pass the next 3 candlesticks
+                data[i]['bearish'].add('Three Black Crows')
+                data[i+1]['bearish'].add('Three Black Crows')
+                data[i+2]['bearish'].add('Three Black Crows')
 
+        # Check four-candlestick patterns
+        if i < n - 3:
+            pass
 
-def hammer(data):
-    for candlestick in data:
-        open = candlestick['open']
-        close = candlestick['close']
-        high = candlestick['high']
-        low = candlestick['low']
-
-        real_body = abs(open - close)
-        lower_wick = min(open, close) - low
-        upper_wick = high - max(open, close)
-        total_range = high - low
-
-        is_small_body = real_body <= total_range * 0.25
-        is_long_lower_wick = lower_wick >= real_body * 2 
-        is_small_upper_wick = upper_wick <= real_body * 0.3 # Needs work
-
-        if is_small_body and is_long_lower_wick and is_small_upper_wick:
-            candlestick['bullish'] += 'Hammer, '
-
+        data[i]['bullish'] = ', '.join(list(data[i]['bullish']))
+        data[i]['bearish'] = ', '.join(list(data[i]['bearish']))
+    
     return data
 
 
+def is_hammer(candlestick):
+    open = candlestick['open']
+    close = candlestick['close']
+    high = candlestick['high']
+    low = candlestick['low']
 
-def three_black_crows(data):
-    return data
+    real_body = abs(open - close)
+    lower_wick = min(open, close) - low
+    upper_wick = high - max(open, close)
+    total_range = high - low
+
+    is_small_body = real_body <= total_range * 0.25
+    is_long_lower_wick = lower_wick >= real_body * 2 
+    is_small_upper_wick = upper_wick <= real_body * 0.3 # Needs work
+
+    return is_small_body and is_long_lower_wick and is_small_upper_wick
+
+
+def is_three_black_crows(candles):
+    if len(candles) != 3:
+        return False
+    c3, c2, c1 = candles
+
+    all_bearish = c1['close'] < c1['open'] and c2['close'] < c2['open'] and c3['close'] < c3['open']
+    c2_open_in_c1_body = c2['open'] < c1['open'] and c2['open'] > c1['close']
+    c3_open_in_c2_body = c3['open'] < c2['open'] and c3['open'] > c2['close']
+    progressive_lower_closes = c3['close'] < c2['close'] < c1['close']
+
+    return all_bearish and c2_open_in_c1_body and c3_open_in_c2_body and progressive_lower_closes
