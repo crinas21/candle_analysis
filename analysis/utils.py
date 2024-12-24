@@ -1,4 +1,5 @@
 import requests
+from .patterns import *
 from django.conf import settings
 import plotly.graph_objects as go
 
@@ -88,21 +89,42 @@ def get_chart_html(pattern_data):
         )
     ]
 
-    fig = go.Figure(data=[go.Candlestick(
-        x=dates,
-        open=opens,
-        high=highs,
-        low=lows,
-        close=closes,
-        hovertext=hover_text,
-        hoverinfo="text",
-        increasing=dict(line=dict(width=1)),  # Decrease border weight
-        decreasing=dict(line=dict(width=1))
-    )])
+    fig = go.Figure(data=[
+            go.Candlestick(
+                x=dates,
+                open=opens,
+                high=highs,
+                low=lows,
+                close=closes,
+                hovertext=hover_text,
+                hoverinfo="text",
+                increasing=dict(line=dict(width=1)),  # Decrease border weight
+                decreasing=dict(line=dict(width=1)),
+                name="Candlestick"
+            ),
+            go.Scatter(     # Triangle indicator for bullish pattern
+                x=[item['date'] for item in sorted_data if item['bullish']], # Bullish dates
+                y=[item['high'] for item in sorted_data if item['bullish']], # Bullish highs
+                mode='markers',
+                marker=dict(symbol='triangle-up', color='lime', size=5),
+                hoverinfo='skip',
+                name='Bullish Pattern'
+            ),
+            go.Scatter(     # Triangle indicator for bearish pattern
+                x=[item['date'] for item in sorted_data if item['bearish']], # Bearish dates
+                y=[item['low'] for item in sorted_data if item['bearish']], # Bearish lows
+                mode='markers',
+                marker=dict(symbol='triangle-down', color='red', size=5),
+                hoverinfo='skip',
+                name='Bearish Pattern'
+            )]
+        )
+    
 
     fig.update_layout(
         xaxis=dict(showgrid=True),
         yaxis=dict(showgrid=True),
+        legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
         height=800
     )
     chart_html = fig.to_html(full_html=False) # Only return chart content
@@ -113,16 +135,34 @@ def identify_patterns(data):
     n = len(data)
     for i in range(n):
         # Check single-candlestick patterns
-        if is_hammer(data[i]):
+        candle = data[i]
+        if is_hammer(candle):
             data[i]['bullish'].add('Hammer')
+        if is_inverted_hammer(candle):
+            data[i]['bullish'].add('Inverted Hammer')
 
         # Check two-candlestick patterns
         if i < n - 1:
-            pass
+            candles = data[i:i+2]
+            if is_bullish_engulfing(candles):
+                data[i]['bullish'].add('Bullish Engulfing')
+                data[i+1]['bullish'].add('Bullish Engulfing')
+            if is_piercing(candles):
+                data[i]['bullish'].add('Piercing')
+                data[i+1]['bullish'].add('Piercing')
         
         # Check three-candlestick patterns
         if i < n - 2:
-            if is_three_black_crows(data[i:i+3]):  # Pass the next 3 candlesticks
+            candles = data[i:i+3]
+            if is_morning_star(candles):
+                data[i]['bullish'].add('Morning Star')
+                data[i+1]['bullish'].add('Morning Star')
+                data[i+2]['bullish'].add('Morning Star')
+            if is_three_white_soldiers(candles):
+                data[i]['bullish'].add('Three White Soldiers')
+                data[i+1]['bullish'].add('Three White Soldiers')
+                data[i+2]['bullish'].add('Three White Soldiers')
+            if is_three_black_crows(candles):  # Pass the next 3 candlesticks
                 data[i]['bearish'].add('Three Black Crows')
                 data[i+1]['bearish'].add('Three Black Crows')
                 data[i+2]['bearish'].add('Three Black Crows')
@@ -135,34 +175,3 @@ def identify_patterns(data):
         data[i]['bearish'] = ', '.join(list(data[i]['bearish']))
     
     return data
-
-
-def is_hammer(candlestick):
-    open = candlestick['open']
-    close = candlestick['close']
-    high = candlestick['high']
-    low = candlestick['low']
-
-    real_body = abs(open - close)
-    lower_wick = min(open, close) - low
-    upper_wick = high - max(open, close)
-    total_range = high - low
-
-    is_small_body = real_body <= total_range * 0.25
-    is_long_lower_wick = lower_wick >= real_body * 2 
-    is_small_upper_wick = upper_wick <= real_body * 0.3 # Needs work
-
-    return is_small_body and is_long_lower_wick and is_small_upper_wick
-
-
-def is_three_black_crows(candles):
-    if len(candles) != 3:
-        return False
-    c3, c2, c1 = candles
-
-    all_bearish = c1['close'] < c1['open'] and c2['close'] < c2['open'] and c3['close'] < c3['open']
-    c2_open_in_c1_body = c2['open'] < c1['open'] and c2['open'] > c1['close']
-    c3_open_in_c2_body = c3['open'] < c2['open'] and c3['open'] > c2['close']
-    progressive_lower_closes = c3['close'] < c2['close'] < c1['close']
-
-    return all_bearish and c2_open_in_c1_body and c3_open_in_c2_body and progressive_lower_closes
