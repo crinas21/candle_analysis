@@ -5,9 +5,325 @@ Home - Candalysis
 {% endblock %}
 
 {% block content %}
-<div class="jumbotron text-center">
-    <h1>Welcome to Candalysis!</h1>
-    <p>Analyse Candlestick patterns with ease.</p>
-</div>
-{% endblock %}
 
+<style>
+.jumbotron {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    height: 100vh;
+    position: relative;
+    transform: translateY(-50px); /* Move up by 50px */
+}
+
+canvas {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Ensures canvas is behind content */
+}
+
+h1, p, a {
+    color: white; /* Ensure readability */
+}
+
+.jumbotron a {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.jumbotron a:hover {
+    background-color: #0056b3;
+}
+</style>
+    
+<div class="jumbotron text-center text-black" style="position: relative; height: 100vh; overflow: hidden;">
+    <!-- Candlestick Animation Canvas -->
+    <canvas id="candlestick-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></canvas>
+
+    <!-- Overlay Text -->
+    <h1 class="display-4" style="z-index: 1; position: relative;">Welcome to Candalysis!</h1>
+    <p class="lead" style="z-index: 1; position: relative;">Analyse candlestick patterns with ease and precision.</p>
+    <a href="{% url 'analysis' %}" class="btn btn-lg btn-light mt-3" style="z-index: 1; position: relative;">Start Analysing</a>
+</div>
+
+<div class="container mt-5">
+    <div class="row text-center">
+        <div class="col-md-4">
+            <i class="fa fa-line-chart fa-3x text-primary"></i>
+            <h3 class="mt-3">Candlestick Analysis</h3>
+            <p>Identify bullish and bearish patterns to make informed decisions.</p>
+        </div>
+        <div class="col-md-4">
+            <i class="fa fa-eye fa-3x text-success"></i>
+            <h3 class="mt-3">Personalised Watchlist</h3>
+            <p>Keep track of your favourite stocks.</p>
+        </div>
+        <div class="col-md-4">
+            <i class="fa fa-picture-o fa-3x text-info"></i>
+            <h3 class="mt-3">Image Analysis</h3>
+            <p>Analyse chart patterns from uploaded images with the power of Convolutional Neural Networks.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.getElementById("candlestick-bg");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let wicks = [];
+    let bodies = [];
+
+    function createWick(x, y, height, color) {
+        midy = y + height/ 2;
+        return {x, y, height, color, currentHeight: 0, midy, state: "expanding"};
+    }
+
+    function createBody(wick) {
+        const height = Math.random() * wick.height
+        const offsetY = Math.random() * (wick.height - height); // Random position on wick
+        const y = wick.y + offsetY;
+        const color = Math.random() > 0.45 ? "green" : "red"; // Random color (slightly more green)
+        return {
+            x: wick.x - 5, // Slightly wider than wick
+            y,
+            currentWidth: 0, // Initial width for drawing animation
+            currentHeight: 0,
+            width: 12, // Final width of the body
+            height: height, // Final height of the body
+            color,
+            opacity: 0,
+            state: "down", // Animation state
+            filled: false, // Track if the body is filled
+        };
+    }
+
+    function drawWick(wick) {
+        ctx.fillStyle = wick.color;
+        const top = wick.midy - wick.currentHeight / 2;
+        const bottom = wick.midy + wick.currentHeight / 2;
+        ctx.fillRect(wick.x, top, 2, wick.currentHeight);
+    }
+
+    function drawBody(body) {
+        ctx.strokeStyle = "white";
+        if (body.state === "down") {
+            ctx.beginPath(); // Current down
+            ctx.moveTo(body.x, body.y); // Start at top-left corner
+            ctx.lineTo(body.x, body.y + body.currentHeight);
+            ctx.stroke();
+        } else if (body.state === "right") {
+            ctx.beginPath(); // Previous down
+            ctx.moveTo(body.x, body.y);
+            ctx.lineTo(body.x, body.y + body.height);
+            ctx.stroke();
+
+            ctx.beginPath(); // Current right
+            ctx.moveTo(body.x, body.y + body.height);
+            ctx.lineTo(body.x + body.currentWidth, body.y + body.height);
+            ctx.stroke();
+        } else if (body.state === "up") {
+            ctx.beginPath(); // Previous down
+            ctx.moveTo(body.x, body.y);
+            ctx.lineTo(body.x, body.y + body.height);
+            ctx.stroke();
+
+            ctx.beginPath(); // Previous right
+            ctx.moveTo(body.x, body.y + body.height);
+            ctx.lineTo(body.x + body.width, body.y + body.height);
+            ctx.stroke();
+
+            ctx.beginPath(); // Current up
+            ctx.moveTo(body.x + body.width, body.y + body.height);
+            ctx.lineTo(body.x + body.width, body.y + body.currentHeight);
+            ctx.stroke();
+        } else if (body.state === "left") {
+            ctx.beginPath(); // Previous down
+            ctx.moveTo(body.x, body.y);
+            ctx.lineTo(body.x, body.y + body.height);
+            ctx.stroke();
+
+            ctx.beginPath(); // Previous right
+            ctx.moveTo(body.x, body.y + body.height);
+            ctx.lineTo(body.x + body.width, body.y + body.height);
+            ctx.stroke();
+
+            ctx.beginPath(); // Previous up
+            ctx.moveTo(body.x + body.width, body.y + body.height);
+            ctx.lineTo(body.x + body.width, body.y);
+            ctx.stroke();
+
+            ctx.beginPath(); // Current left
+            ctx.moveTo(body.x + body.width, body.y);
+            ctx.lineTo(body.x + body.currentWidth, body.y);
+            ctx.stroke();
+
+        } else if (body.state === "complete") {
+            ctx.beginPath(); // Previous down
+            ctx.moveTo(body.x, body.y);
+            ctx.lineTo(body.x, body.y + body.height);
+            ctx.stroke();
+
+            ctx.beginPath(); // Previous right
+            ctx.moveTo(body.x, body.y + body.height);
+            ctx.lineTo(body.x + body.width, body.y + body.height);
+            ctx.stroke();
+
+            ctx.beginPath(); // Previous up
+            ctx.moveTo(body.x + body.width, body.y + body.height);
+            ctx.lineTo(body.x + body.width, body.y);
+            ctx.stroke();
+
+            ctx.beginPath(); // Previous left
+            ctx.moveTo(body.x + body.width, body.y);
+            ctx.lineTo(body.x, body.y);
+            ctx.stroke();
+        }
+
+        ctx.globalAlpha = body.opacity;
+        ctx.fillStyle = body.color;
+        ctx.fillRect(body.x+0.5, body.y+0.5, body.width-1, body.height-1);
+        ctx.globalAlpha = 1;
+    }
+
+    wicks.push(createWick(1 * canvas.width / 40, 370, 120, "white"));
+    wicks.push(createWick(2 * canvas.width / 40, 220, 200, "white"));
+    wicks.push(createWick(3 * canvas.width / 40, 300, 90, "white"));
+    wicks.push(createWick(4 * canvas.width / 40, 350, 80, "white"));
+    wicks.push(createWick(5 * canvas.width / 40, 330, 110, "white"));
+    wicks.push(createWick(6 * canvas.width / 40, 250, 140, "white"));
+    wicks.push(createWick(7 * canvas.width / 40, 220, 80, "white"));
+    wicks.push(createWick(8 * canvas.width / 40, 280, 190, "white"));
+    wicks.push(createWick(9 * canvas.width / 40, 390, 70, "white"));
+    wicks.push(createWick(10 * canvas.width / 40, 400, 90, "white"));
+    wicks.push(createWick(11 * canvas.width / 40, 430, 130, "white"));
+    wicks.push(createWick(12 * canvas.width / 40, 450, 160, "white"));
+    wicks.push(createWick(13 * canvas.width / 40, 480, 120, "white"));
+    wicks.push(createWick(14 * canvas.width / 40, 470, 70, "white"));
+    wicks.push(createWick(15 * canvas.width / 40, 440, 90, "white"));
+    wicks.push(createWick(16 * canvas.width / 40, 470, 110, "white"));
+    wicks.push(createWick(17 * canvas.width / 40, 520, 140, "white"));
+    wicks.push(createWick(18 * canvas.width / 40, 510, 100, "white"));
+    wicks.push(createWick(19 * canvas.width / 40, 520, 50, "white"));
+    wicks.push(createWick(20 * canvas.width / 40, 560, 80, "white"));
+    wicks.push(createWick(21 * canvas.width / 40, 550, 60, "white"));
+    wicks.push(createWick(22 * canvas.width / 40, 520, 20, "white"));
+    wicks.push(createWick(23 * canvas.width / 40, 510, 70, "white"));
+    wicks.push(createWick(24 * canvas.width / 40, 480, 90, "white"));
+    wicks.push(createWick(25 * canvas.width / 40, 470, 40, "white"));
+    wicks.push(createWick(26 * canvas.width / 40, 500, 80, "white"));
+    wicks.push(createWick(27 * canvas.width / 40, 520, 40, "white"));
+    wicks.push(createWick(28 * canvas.width / 40, 530, 70, "white"));
+    wicks.push(createWick(29 * canvas.width / 40, 500, 60, "white"));
+    wicks.push(createWick(30 * canvas.width / 40, 440, 110, "white"));
+    wicks.push(createWick(31 * canvas.width / 40, 370, 120, "white"));
+    wicks.push(createWick(32 * canvas.width / 40, 390, 70, "white"));
+    wicks.push(createWick(33 * canvas.width / 40, 410, 100, "white"));
+    wicks.push(createWick(34 * canvas.width / 40, 460, 90, "white"));
+    wicks.push(createWick(35 * canvas.width / 40, 380, 110, "white"));
+    wicks.push(createWick(36 * canvas.width / 40, 330, 80, "white"));
+    wicks.push(createWick(37 * canvas.width / 40, 320, 100, "white"));
+    wicks.push(createWick(38 * canvas.width / 40, 260, 130, "white"));
+    wicks.push(createWick(39 * canvas.width / 40, 190, 160, "white"));
+
+    // Add bodies to each wick
+    wicks.forEach((wick) => {
+        bodies.push(createBody(wick));
+    });
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Wicks
+        for (let i = 0; i < wicks.length; i++) {
+            if (wicks[i].state === "expanding") {
+                if (i >= 1) {
+                    if (wicks[i-1].state !== "expanding") {
+                        wicks[i].currentHeight += wicks[i].height/25;
+                    }
+                } else {
+                    wicks[i].currentHeight += wicks[i].height/25;
+                }
+                if (wicks[i].currentHeight >= wicks[i].height * 0.35) {
+                    wicks[i].state = "contracting";
+                }
+            } else if (wicks[i].state === "contracting") {
+                wicks[i].currentHeight -= wicks[i].height/150;
+                if (wicks[i].currentHeight <= wicks[i].height * 0.25) {
+                    wicks[i].state = "finalizing";
+                }
+            } else if (wicks[i].state === "finalizing") {
+                wicks[i].currentHeight += wicks[i].height/10;
+                if (wicks[i].currentHeight >= wicks[i].height) {
+                    wicks[i].currentHeight = wicks[i].height;
+                    wicks[i].state = "complete";
+                }
+            }
+            drawWick(wicks[i]);
+        }
+
+        // Bodies
+        for (let i = 0; i < bodies.length; i++) {
+            if (bodies[i].state === "down") {
+                if (i >= 1) {
+                    if (wicks[i-1].state === "finalizing" || wicks[i].state === "complete") {
+                        bodies[i].currentHeight += (bodies[i].height + bodies[i].width)/16;
+                    }
+                } else {
+                    if (wicks[i].state === "finalizing" || wicks[i].state === "complete") {
+                        bodies[i].currentHeight += (bodies[i].height + bodies[i].width)/16;
+                    }
+                }
+                if (bodies[i].currentHeight >= bodies[i].height) {
+                    bodies[i].state = "right";
+                }
+            } else if (bodies[i].state === "right") {
+                bodies[i].currentWidth += (bodies[i].height + bodies[i].width)/16;
+                if (bodies[i].opacity < 1) {
+                    bodies[i].opacity += 0.05
+                }
+                if (bodies[i].currentWidth >= bodies[i].width) {
+                    bodies[i].state = "up";
+                }
+            } else if (bodies[i].state === "up") {
+                bodies[i].currentHeight -= (bodies[i].height + bodies[i].width)/16;
+                if (bodies[i].opacity < 1) {
+                    bodies[i].opacity += 0.05
+                }
+                if (bodies[i].currentHeight <= 0) {
+                    bodies[i].state = "left";
+                }
+            } else if (bodies[i].state === "left") {
+                bodies[i].currentWidth -= (bodies[i].height + bodies[i].width)/16;
+                if (bodies[i].opacity < 1) {
+                    bodies[i].opacity += 0.05
+                }
+                if (bodies[i].currentWidth <= 0 && bodies[i].opacity >= 1) {
+                    bodies[i].state = "complete";
+                }
+            }
+            drawBody(bodies[i])
+        }
+
+        // Keep animating until all wicks and bodies are complete
+        if (wicks.some((wick) => wick.state !== "complete") || bodies.some((body) => body.state !== "complete")) {
+            requestAnimationFrame(animate);
+        }
+    }
+    animate();
+});
+</script>
+    
+{% endblock %}

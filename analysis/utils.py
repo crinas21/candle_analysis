@@ -117,15 +117,17 @@ def get_chart_html(pattern_data):
                 marker=dict(symbol='triangle-down', color='red', size=5),
                 hoverinfo='skip',
                 name='Bearish Pattern'
-            )]
-        )
+            )
+        ]
+    )
     
 
     fig.update_layout(
         xaxis=dict(showgrid=True),
         yaxis=dict(showgrid=True),
         legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
-        height=800
+        height=800,
+        paper_bgcolor="#18181b"
     )
     chart_html = fig.to_html(full_html=False) # Only return chart content
     return chart_html
@@ -140,6 +142,8 @@ def identify_patterns(data):
             data[i]['bullish'].add('Hammer')
         if is_inverted_hammer(candle):
             data[i]['bullish'].add('Inverted Hammer')
+        if is_white_marubozu(candle):
+            data[i]['bullish'].add('White Marubozu')
 
         # Check two-candlestick patterns
         if i < n - 1:
@@ -150,6 +154,9 @@ def identify_patterns(data):
             if is_piercing(candles):
                 data[i]['bullish'].add('Piercing')
                 data[i+1]['bullish'].add('Piercing')
+            if is_bullish_harami(candles):
+                data[i]['bullish'].add('Bullish Harami')
+                data[i+1]['bullish'].add('Bullish Harami')
         
         # Check three-candlestick patterns
         if i < n - 2:
@@ -162,7 +169,11 @@ def identify_patterns(data):
                 data[i]['bullish'].add('Three White Soldiers')
                 data[i+1]['bullish'].add('Three White Soldiers')
                 data[i+2]['bullish'].add('Three White Soldiers')
-            if is_three_black_crows(candles):  # Pass the next 3 candlesticks
+            if is_three_inside_up(candles):
+                data[i]['bullish'].add('Three Inside Up')
+                data[i+1]['bullish'].add('Three Inside Ups')
+                data[i+2]['bullish'].add('Three Inside Up')
+            if is_three_black_crows(candles):
                 data[i]['bearish'].add('Three Black Crows')
                 data[i+1]['bearish'].add('Three Black Crows')
                 data[i+2]['bearish'].add('Three Black Crows')
