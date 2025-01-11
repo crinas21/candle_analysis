@@ -64,6 +64,7 @@ def is_piercing(candles):
 
     return c1_bearish and c2_bullish and c2_open_below_c1_close and c2_close_above_c1_midway
 
+
 def is_bullish_harami(candles):
     if len(candles) != 2:
         return False
@@ -74,6 +75,18 @@ def is_bullish_harami(candles):
     c2_inside_c1 = c2['close'] < c1['open'] and c2['open'] > c1['close']
 
     return c1_bearish and c2_bullish and c2_inside_c1
+
+
+def is_tweezer_bottom(candles):
+    if len(candles) != 2:
+        return False
+    c2, c1 = candles
+
+    c1_bearish = c1['close'] < c1['open']
+    c2_bullish = c2['close'] > c2['open']
+    similar_bottoms = abs(c1['low'] - c2['low']) < 0.1 * min((c1['high'] - c1['low']), (c2['high'] - c2['low']))
+
+    return c1_bearish and c2_bullish and similar_bottoms
 
 
 def is_morning_star(candles):

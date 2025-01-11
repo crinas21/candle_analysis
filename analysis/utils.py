@@ -134,55 +134,75 @@ def get_chart_html(pattern_data):
 
 
 def identify_patterns(data):
+    bullish_single_candlestick_patterns = {
+        'Hammer': is_hammer,
+        'Inverted Hammer': is_inverted_hammer,
+        'White Marubozu': is_white_marubozu,
+    }
+
+    bullish_two_candlestick_patterns = {
+        'Bullish Engulfing': is_bullish_engulfing,
+        'Piercing': is_piercing,
+        'Bullish Harami': is_bullish_harami,
+        'Tweezer Bottom': is_tweezer_bottom,
+    }
+
+    bullish_three_candlestick_patterns = {
+        'Morning Star': is_morning_star,
+        'Three White Soldiers': is_three_white_soldiers,
+        'Three Inside Up': is_three_inside_up,
+    }
+
+    bearish_single_candlestick_patterns = {
+ 
+    }
+
+    bearish_two_candlestick_patterns = {
+
+    }
+
+    bearish_three_candlestick_patterns = {
+        'Three Black Crows': is_three_black_crows
+    }
+
     n = len(data)
     for i in range(n):
         # Check single-candlestick patterns
-        candle = data[i]
-        if is_hammer(candle):
-            data[i]['bullish'].add('Hammer')
-        if is_inverted_hammer(candle):
-            data[i]['bullish'].add('Inverted Hammer')
-        if is_white_marubozu(candle):
-            data[i]['bullish'].add('White Marubozu')
+        for pattern_name, pattern_fn in bullish_single_candlestick_patterns.items():
+            if pattern_fn(data[i]):
+                data[i]['bullish'].add(pattern_name)
+        
+        for pattern_name, pattern_fn in bearish_single_candlestick_patterns.items():
+            if pattern_fn(data[i]):
+                data[i]['bearish'].add(pattern_name)
 
         # Check two-candlestick patterns
         if i < n - 1:
-            candles = data[i:i+2]
-            if is_bullish_engulfing(candles):
-                data[i]['bullish'].add('Bullish Engulfing')
-                data[i+1]['bullish'].add('Bullish Engulfing')
-            if is_piercing(candles):
-                data[i]['bullish'].add('Piercing')
-                data[i+1]['bullish'].add('Piercing')
-            if is_bullish_harami(candles):
-                data[i]['bullish'].add('Bullish Harami')
-                data[i+1]['bullish'].add('Bullish Harami')
-        
+            for pattern_name, pattern_fn in bullish_two_candlestick_patterns.items():
+                if pattern_fn(data[i:i+2]):
+                    data[i]['bullish'].add(pattern_name)
+                    data[i+1]['bullish'].add(pattern_name)
+            
+            for pattern_name, pattern_fn in bearish_two_candlestick_patterns.items():
+                if pattern_fn(data[i:i+2]):
+                    data[i]['bearish'].add(pattern_name)
+                    data[i+1]['bearish'].add(pattern_name)
+
         # Check three-candlestick patterns
         if i < n - 2:
-            candles = data[i:i+3]
-            if is_morning_star(candles):
-                data[i]['bullish'].add('Morning Star')
-                data[i+1]['bullish'].add('Morning Star')
-                data[i+2]['bullish'].add('Morning Star')
-            if is_three_white_soldiers(candles):
-                data[i]['bullish'].add('Three White Soldiers')
-                data[i+1]['bullish'].add('Three White Soldiers')
-                data[i+2]['bullish'].add('Three White Soldiers')
-            if is_three_inside_up(candles):
-                data[i]['bullish'].add('Three Inside Up')
-                data[i+1]['bullish'].add('Three Inside Ups')
-                data[i+2]['bullish'].add('Three Inside Up')
-            if is_three_black_crows(candles):
-                data[i]['bearish'].add('Three Black Crows')
-                data[i+1]['bearish'].add('Three Black Crows')
-                data[i+2]['bearish'].add('Three Black Crows')
+            for pattern_name, pattern_fn in bullish_three_candlestick_patterns.items():
+                if pattern_fn(data[i:i+3]):
+                    data[i]['bullish'].add(pattern_name)
+                    data[i+1]['bullish'].add(pattern_name)
+                    data[i+2]['bullish'].add(pattern_name)
 
-        # Check four-candlestick patterns
-        if i < n - 3:
-            pass
+            for pattern_name, pattern_fn in bearish_three_candlestick_patterns.items():
+                if pattern_fn(data[i:i+3]):
+                    data[i]['bearish'].add(pattern_name)
+                    data[i+1]['bearish'].add(pattern_name)
+                    data[i+2]['bearish'].add(pattern_name)
 
-        data[i]['bullish'] = ', '.join(list(data[i]['bullish']))
-        data[i]['bearish'] = ', '.join(list(data[i]['bearish']))
-    
+        data[i]['bullish'] = ', '.join(data[i]['bullish'])
+        data[i]['bearish'] = ', '.join(data[i]['bearish'])
+
     return data
