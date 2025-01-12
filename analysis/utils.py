@@ -138,6 +138,7 @@ def identify_patterns(data):
         'Hammer': is_hammer,
         'Inverted Hammer': is_inverted_hammer,
         'White Marubozu': is_white_marubozu,
+        'Dragonfly Foji': is_dragonfly_doji,
     }
 
     bullish_two_candlestick_patterns = {
@@ -151,18 +152,28 @@ def identify_patterns(data):
         'Morning Star': is_morning_star,
         'Three White Soldiers': is_three_white_soldiers,
         'Three Inside Up': is_three_inside_up,
+        'Bullish Counterattack Line': is_bullish_counterattack_line,
     }
 
     bearish_single_candlestick_patterns = {
- 
+        'Hanging Man': is_hanging_man,
+        'Shooting Star': is_shooting_star,
+        'Black Marubozu': is_black_marubozu,
+        'Gravestone Doji': is_gravestone_doji,
     }
 
     bearish_two_candlestick_patterns = {
-
+        'Bearish Engulfing': is_bearish_engulfing,
+        'Dark Cloud Cover': is_dark_cloud_cover,
+        'Bearish Harami': is_bearish_harami,
+        'Tweezer Top': is_tweezer_top,
     }
 
     bearish_three_candlestick_patterns = {
-        'Three Black Crows': is_three_black_crows
+        'Evening Stat': is_evening_star,
+        'Three Black Crows': is_three_black_crows,
+        'Three Inside Down': is_three_inside_down,
+        'Bearish Counterattck Line': is_bearish_counterattack_line,
     }
 
     n = len(data)
