@@ -108,13 +108,50 @@ def is_bullish_counterattack_line(candles):
         return False
     c2, c1 = candles
 
-    c1_bearish = c1['close'] < c1['open']
+    c1_bearish = c1['close'] < c1['open'] # TODO: Check big
     c2_bullish = c2['close'] > c2['open']
     c1_big_to_c2 = abs(c1['open'] - c1['close']) > 3 * abs(c2['close'] - c2['open'])
     gap_exists = c2['open'] < c1['close']
     similar_close = abs(c1['close'] - c2['close']) < 0.1 * min((c1['high'] - c1['low']), (c2['high'] - c2['low']))
 
     return c1_bearish and c2_bullish and c1_big_to_c2 and gap_exists and similar_close
+
+
+def is_rising_window(candles):
+    if len(candles) != 2:
+        return False
+    c2, c1 = candles
+
+    c1_bullish = c1['close'] > c1['open']
+    c2_bullish = c2['close'] > c2['open']
+    gap_exists = c1['close'] < c1['open']
+    # TODO: need to check bodies are actually big
+
+    return c1_bullish and c2_bullish and gap_exists
+
+
+def is_on_neck_bullish(candles): # Similar to counterattack
+    if len(candles) != 2:
+        return False
+    c2, c1 = candles
+
+    c1_bearish = c1['close'] < c1['open']
+    c2_bullish = c2['close'] > c2['open']
+    c2_close_at_c1_low = abs(c2['close'] - c1['low']) < 0.1 * min((c1['high'] - c1['low']), (c2['high'] - c2['low']))
+
+    return c1_bearish and c2_bullish and c2_close_at_c1_low
+
+
+def is_in_neck_bullish(candles):
+    if len(candles) != 2:
+        return False
+    c2, c1 = candles
+
+    c1_bearish = c1['close'] < c1['open']
+    c2_bullish = c2['close'] > c2['open']
+    similar_close = abs(c1['close'] - c2['close']) < 0.1 * min((c1['high'] - c1['low']), (c2['high'] - c2['low']))
+
+    return c1_bearish and c2_bullish and similar_close
 
 
 def is_morning_star(candles):
@@ -175,6 +212,46 @@ def is_three_outside_up(candles):
     c3_closes_above = c3['close'] > c2['close'] and c3['close'] > c1['open']
 
     return c1_bearish and c2_bullish and c2_engulfs_c1 and c3_bullish and c3_closes_above
+
+
+def is_upside_tasuki_gap(candles):
+    if len(candles) != 3:
+        return False
+    c3, c2, c1 = candles
+
+    c1_bullish = c1['close'] > c1['open'] # TODO: Check big
+    c2_bullish = c2['close'] > c2['open']
+    c3_bearish = c3['close'] < c3['open']
+    c3_close_in_gap = c3['close'] > c1['close'] and c3['close'] < c2['open']
+
+    return c1_bullish and c2_bullish and c3_bearish and c3_close_in_gap
+
+
+def is_rising_three_methods(candles):
+    if len(candles) != 5:
+        return False
+    c5, c4, c3, c2, c1 = candles
+
+    c1_c5_bullish = c1['close'] > c1['open'] and c5['close'] > c5['open'] # TODO: Check big
+    middle_cs_bearish = c2['close'] < c2['open'] and c3['close'] < c3['open'] and c4['close'] < c4['open']
+    middle_cs_below_c1_high = max(c2['open'], c3['open'], c4['open']) < c1['high']
+    c5_close_above = c5['close'] > c1['high']
+
+    return c1_c5_bullish and middle_cs_bearish and middle_cs_below_c1_high and c5_close_above
+
+
+def is_mat_hold_bullish(candles):
+    if len(candles) != 5:
+        return False
+    c5, c4, c3, c2, c1 = candles
+
+    c1_c5_bullish = c1['close'] > c1['open'] and c5['close'] > c5['open'] # TODO: Check big
+    middle_cs_bearish = c2['close'] < c2['open'] and c3['close'] < c3['open'] and c4['close'] < c4['open']
+    c1_c2_gap_exists = c1['close'] < c2['close']
+    middle_cs_above_c1_low = min(c2['close'], c3['close'], c4['close']) > c1['low']
+    c5_close_above = c5['close'] > max(c2['open'], c3['open'], c4['open'])
+
+    return c1_c5_bullish and middle_cs_bearish and c1_c2_gap_exists and middle_cs_above_c1_low and c5_close_above
 
 
 # Bearish
@@ -263,6 +340,57 @@ def is_tweezer_top(candles):
     return c1_bullish and c2_bearish and similar_tops
 
 
+def is_bearish_counterattack_line(candles):
+    if len(candles) != 2:
+        return False
+    c2, c1 = candles
+
+    c1_bullish = c1['close'] > c1['open']
+    c2_bearish = c2['close'] < c2['open']
+    c1_big_to_c2 = abs(c1['close'] - c1['open']) > 3 * abs(c2['open'] - c2['close'])
+    gap_exists = c2['open'] > c1['close']
+    similar_close = abs(c1['close'] - c2['close']) < 0.1 * min((c1['high'] - c1['low']), (c2['high'] - c2['low']))
+
+    return c1_bullish and c2_bearish and c1_big_to_c2 and gap_exists and similar_close
+
+
+def is_falling_window(candles):
+    if len(candles) != 2:
+        return False
+    c2, c1 = candles
+
+    c1_bearish = c1['close'] < c1['open']
+    c2_bearish = c2['close'] < c2['open']
+    gap_exists = c1['close'] > c1['open']
+    # TODO: need to check bodies are actually big
+
+    return c1_bearish and c2_bearish and gap_exists
+
+
+def is_on_neck_bearish(candles): # Similar to counterattack
+    if len(candles) != 2:
+        return False
+    c2, c1 = candles
+
+    c1_bullish = c1['close'] > c1['open']
+    c2_bearish = c2['close'] < c2['open']
+    c2_close_at_c1_high = abs(c2['close'] - c1['high']) < 0.1 * min((c1['high'] - c1['low']), (c2['high'] - c2['low']))
+
+    return c1_bullish and c2_bearish and c2_close_at_c1_high
+
+
+def is_in_neck_bearish(candles):
+    if len(candles) != 2:
+        return False
+    c2, c1 = candles
+
+    c1_bullish = c1['close'] > c1['open']
+    c2_bearish = c2['close'] < c2['open']
+    similar_close = abs(c1['close'] - c2['close']) < 0.1 * min((c1['high'] - c1['low']), (c2['high'] - c2['low']))
+
+    return c1_bullish and c2_bearish and similar_close
+
+
 def is_evening_star(candles):
     if len(candles) != 3:
         return False
@@ -284,7 +412,7 @@ def is_three_black_crows(candles):
     c2_open_in_c1_body = c2['open'] < c1['open'] and c2['open'] > c1['close']
     c3_open_in_c2_body = c3['open'] < c2['open'] and c3['open'] > c2['close']
     progressive_lower_closes = c3['close'] < c2['close'] < c1['close']
-    # Check all small wicks
+
     for c in candles:
         real_body = abs(c['open'] - c['close'])
         lower_wick = min(c['open'], c['close']) - c['low']
@@ -322,15 +450,41 @@ def is_three_outside_down(candles):
     return c1_bullish and c2_bearish and c2_engulfs_c1 and c3_bearish and c3_closes_below
 
 
-def is_bearish_counterattack_line(candles):
-    if len(candles) != 2:
+def is_downside_tasuki_gap(candles):
+    if len(candles) != 3:
         return False
-    c2, c1 = candles
+    c3, c2, c1 = candles
 
-    c1_bullish = c1['close'] > c1['open']
+    c1_bearish = c1['close'] < c1['open'] # TODO: Check big
     c2_bearish = c2['close'] < c2['open']
-    c1_big_to_c2 = abs(c1['close'] - c1['open']) > 3 * abs(c2['open'] - c2['close'])
-    gap_exists = c2['open'] > c1['close']
-    similar_close = abs(c1['close'] - c2['close']) < 0.1 * min((c1['high'] - c1['low']), (c2['high'] - c2['low']))
+    c3_bullish = c3['close'] > c3['open']
+    c3_close_in_gap = c3['close'] < c1['close'] and c3['close'] > c2['open']
 
-    return c1_bullish and c2_bearish and c1_big_to_c2 and gap_exists and similar_close
+    return c1_bearish and c2_bearish and c3_bullish and c3_close_in_gap
+
+
+def is_falling_three_methods(candles):
+    if len(candles) != 5:
+        return False
+    c5, c4, c3, c2, c1 = candles
+
+    c1_c5_bearish = c1['close'] < c1['open'] and c5['close'] < c5['open'] # TODO: Check big
+    middle_cs_bullish = c2['close'] > c2['open'] and c3['close'] > c3['open'] and c4['close'] > c4['open']
+    middle_cs_below_c1_high = max(c2['close'], c3['close'], c4['close']) < c1['high']
+    c5_close_below = c5['close'] > c1['low']
+
+    return c1_c5_bearish and middle_cs_bullish and middle_cs_below_c1_high and c5_close_below
+
+
+def is_mat_hold_bearish(candles):
+    if len(candles) != 5:
+        return False
+    c5, c4, c3, c2, c1 = candles
+
+    c1_c5_bearish = c1['close'] < c1['open'] and c5['close'] < c5['open'] # TODO: Check big
+    middle_cs_bullish = c2['close'] > c2['open'] and c3['close'] > c3['open'] and c4['close'] > c4['open']
+    c1_c2_gap_exists = c1['close'] > c2['close']
+    middle_cs_below_c1_high = max(c2['close'], c3['close'], c4['close']) < c1['high']
+    c5_close_below = c5['close'] < min(c2['open'], c3['open'], c4['open'])
+
+    return c1_c5_bearish and middle_cs_bullish and c1_c2_gap_exists and middle_cs_below_c1_high and c5_close_below

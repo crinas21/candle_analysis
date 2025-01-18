@@ -82,8 +82,8 @@ def get_chart_html(pattern_data):
         f"<b>Low:</b> {low}<br>"
         f"<b>Close:</b> {close}<br>"
         f"<b>Volume:</b> {volume}<br>"
-        f"<b><span style='color:green'>Bullish:</span></b> {bullish_}<br>"
-        f"<b><span style='color:red'>Bearish:</span></b> {bearish_}<br>"
+        f"<b>Bullish:</b> {bullish_}<br>"
+        f"<b>Bearish:</b> {bearish_}<br>"
         for date, open_, high, low, close, volume, bullish_, bearish_ in zip(
             dates, opens, highs, lows, closes, volumes, bullish, bearish
         )
@@ -106,7 +106,7 @@ def get_chart_html(pattern_data):
                 x=[item['date'] for item in sorted_data if item['bullish']], # Bullish dates
                 y=[item['high'] for item in sorted_data if item['bullish']], # Bullish highs
                 mode='markers',
-                marker=dict(symbol='triangle-up', color='lime', size=5),
+                marker=dict(symbol='triangle-up', color='green', size=5),
                 hoverinfo='skip',
                 name='Bullish Pattern'
             ),
@@ -120,7 +120,6 @@ def get_chart_html(pattern_data):
             )
         ]
     )
-    
 
     fig.update_layout(
         xaxis=dict(showgrid=True),
@@ -146,13 +145,23 @@ def identify_patterns(data):
         'Piercing': is_piercing,
         'Bullish Harami': is_bullish_harami,
         'Tweezer Bottom': is_tweezer_bottom,
+        'Bullish Counterattack Line': is_bullish_counterattack_line,
+        'Rising Window': is_rising_window,
+        'On Neck Bullish': is_on_neck_bullish,
+        'In Neck Bullish': is_in_neck_bullish,
     }
 
     bullish_three_candlestick_patterns = {
         'Morning Star': is_morning_star,
         'Three White Soldiers': is_three_white_soldiers,
         'Three Inside Up': is_three_inside_up,
-        'Bullish Counterattack Line': is_bullish_counterattack_line,
+        'Three Outside Up': is_three_outside_up,
+        'Upside Tasuki Gap': is_upside_tasuki_gap,
+    }
+
+    bullish_five_candlestick_patterns = {
+        'Rising Three Methods': is_rising_three_methods,
+        'Mat Hold Bullish': is_mat_hold_bullish,
     }
 
     bearish_single_candlestick_patterns = {
@@ -167,13 +176,22 @@ def identify_patterns(data):
         'Dark Cloud Cover': is_dark_cloud_cover,
         'Bearish Harami': is_bearish_harami,
         'Tweezer Top': is_tweezer_top,
+        'Bearish Counterattack Line': is_bearish_counterattack_line,
+        'Falling Window': is_falling_window,
+        'On Neck Bearish': is_on_neck_bearish,
+        'In Neck Bearish': is_in_neck_bearish,
     }
 
     bearish_three_candlestick_patterns = {
         'Evening Stat': is_evening_star,
         'Three Black Crows': is_three_black_crows,
         'Three Inside Down': is_three_inside_down,
-        'Bearish Counterattck Line': is_bearish_counterattack_line,
+        'Three Outside Down': is_three_outside_down,
+    }
+
+    bearish_five_candlestick_patterns = {
+        'Falling Three Methods': is_falling_three_methods,
+        'Mat Hold Bearish': is_mat_hold_bearish,
     }
 
     n = len(data)
@@ -212,6 +230,24 @@ def identify_patterns(data):
                     data[i]['bearish'].add(pattern_name)
                     data[i+1]['bearish'].add(pattern_name)
                     data[i+2]['bearish'].add(pattern_name)
+
+        # Check five-candlestick patterns
+        if i < n - 4:
+            for pattern_name, pattern_fn in bullish_five_candlestick_patterns.items():
+                if pattern_fn(data[i:i+5]):
+                    data[i]['bullish'].add(pattern_name)
+                    data[i+1]['bullish'].add(pattern_name)
+                    data[i+2]['bullish'].add(pattern_name)
+                    data[i+3]['bullish'].add(pattern_name)
+                    data[i+4]['bullish'].add(pattern_name)
+
+            for pattern_name, pattern_fn in bearish_five_candlestick_patterns.items():
+                if pattern_fn(data[i:i+5]):
+                    data[i]['bearish'].add(pattern_name)
+                    data[i+1]['bearish'].add(pattern_name)
+                    data[i+2]['bearish'].add(pattern_name)
+                    data[i+3]['bearish'].add(pattern_name)
+                    data[i+4]['bearish'].add(pattern_name)
 
         data[i]['bullish'] = ', '.join(data[i]['bullish'])
         data[i]['bearish'] = ', '.join(data[i]['bearish'])
