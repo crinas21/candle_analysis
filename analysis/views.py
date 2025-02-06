@@ -70,6 +70,14 @@ def analysis(request):
         alpha_data = dict(sorted(alpha_data.items(), key=lambda x: x[0], reverse=True)[:days]) # Get only the days specified
         pattern_data = utils.get_pattern_data(alpha_data)
 
+        # Check if the request wants a JSON response
+        if request.headers.get('Accept') == 'application/json':
+            return JsonResponse({
+                'symbol': symbol,
+                'days': days,
+                'candlestick_data': pattern_data,
+            }, status=200)
+
         paginator = Paginator(pattern_data, rows_per_page)
         current_page_data = paginator.get_page(page_number)
 

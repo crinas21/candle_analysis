@@ -141,27 +141,27 @@ def identify_patterns(data):
     }
 
     bullish_two_candlestick_patterns = {
-        'Bullish Engulfing': is_bullish_engulfing,
-        'Piercing': is_piercing,
-        'Bullish Harami': is_bullish_harami,
-        'Tweezer Bottom': is_tweezer_bottom,
-        'Bullish Counterattack Line': is_bullish_counterattack_line,
-        'Rising Window': is_rising_window,
-        'On Neck Bullish': is_on_neck_bullish,
-        'In Neck Bullish': is_in_neck_bullish,
+        'Bullish Engulfing (2)': is_bullish_engulfing,
+        'Piercing (2)': is_piercing,
+        'Bullish Harami (2)': is_bullish_harami,
+        'Tweezer Bottom (2)': is_tweezer_bottom,
+        'Bullish Counterattack Line (2)': is_bullish_counterattack_line,
+        'Rising Window (2)': is_rising_window,
+        'On Neck Bullish (2)': is_on_neck_bullish,
+        'In Neck Bullish (2)': is_in_neck_bullish,
     }
 
     bullish_three_candlestick_patterns = {
-        'Morning Star': is_morning_star,
-        'Three White Soldiers': is_three_white_soldiers,
-        'Three Inside Up': is_three_inside_up,
-        'Three Outside Up': is_three_outside_up,
-        'Upside Tasuki Gap': is_upside_tasuki_gap,
+        'Morning Star (3)': is_morning_star,
+        'Three White Soldiers (3)': is_three_white_soldiers,
+        'Three Inside Up (3)': is_three_inside_up,
+        'Three Outside Up (3)': is_three_outside_up,
+        'Upside Tasuki Gap (3)': is_upside_tasuki_gap,
     }
 
     bullish_five_candlestick_patterns = {
-        'Rising Three Methods': is_rising_three_methods,
-        'Mat Hold Bullish': is_mat_hold_bullish,
+        'Rising Three Methods (5)': is_rising_three_methods,
+        'Mat Hold Bullish (5)': is_mat_hold_bullish,
     }
 
     bearish_single_candlestick_patterns = {
@@ -172,26 +172,26 @@ def identify_patterns(data):
     }
 
     bearish_two_candlestick_patterns = {
-        'Bearish Engulfing': is_bearish_engulfing,
-        'Dark Cloud Cover': is_dark_cloud_cover,
-        'Bearish Harami': is_bearish_harami,
-        'Tweezer Top': is_tweezer_top,
-        'Bearish Counterattack Line': is_bearish_counterattack_line,
-        'Falling Window': is_falling_window,
-        'On Neck Bearish': is_on_neck_bearish,
-        'In Neck Bearish': is_in_neck_bearish,
+        'Bearish Engulfing (2)': is_bearish_engulfing,
+        'Dark Cloud Cover (2)': is_dark_cloud_cover,
+        'Bearish Harami (2)': is_bearish_harami,
+        'Tweezer Top (2)': is_tweezer_top,
+        'Bearish Counterattack Line (2)': is_bearish_counterattack_line,
+        'Falling Window (2)': is_falling_window,
+        'On Neck Bearish (2)': is_on_neck_bearish,
+        'In Neck Bearish (2)': is_in_neck_bearish,
     }
 
     bearish_three_candlestick_patterns = {
-        'Evening Stat': is_evening_star,
-        'Three Black Crows': is_three_black_crows,
-        'Three Inside Down': is_three_inside_down,
-        'Three Outside Down': is_three_outside_down,
+        'Evening Stat (3)': is_evening_star,
+        'Three Black Crows (3)': is_three_black_crows,
+        'Three Inside Down (3)': is_three_inside_down,
+        'Three Outside Down (3)': is_three_outside_down,
     }
 
     bearish_five_candlestick_patterns = {
-        'Falling Three Methods': is_falling_three_methods,
-        'Mat Hold Bearish': is_mat_hold_bearish,
+        'Falling Three Methods (5)': is_falling_three_methods,
+        'Mat Hold Bearish (5)': is_mat_hold_bearish,
     }
 
     n = len(data)
@@ -210,44 +210,44 @@ def identify_patterns(data):
             for pattern_name, pattern_fn in bullish_two_candlestick_patterns.items():
                 if pattern_fn(data[i:i+2]):
                     data[i]['bullish'].add(pattern_name)
-                    data[i+1]['bullish'].add(pattern_name)
+                    # data[i+1]['bullish'].add(pattern_name)
             
             for pattern_name, pattern_fn in bearish_two_candlestick_patterns.items():
                 if pattern_fn(data[i:i+2]):
                     data[i]['bearish'].add(pattern_name)
-                    data[i+1]['bearish'].add(pattern_name)
+                    # data[i+1]['bearish'].add(pattern_name)
 
         # Check three-candlestick patterns
         if i < n - 2:
             for pattern_name, pattern_fn in bullish_three_candlestick_patterns.items():
                 if pattern_fn(data[i:i+3]):
                     data[i]['bullish'].add(pattern_name)
-                    data[i+1]['bullish'].add(pattern_name)
-                    data[i+2]['bullish'].add(pattern_name)
+                    # data[i+1]['bullish'].add(pattern_name)
+                    # data[i+2]['bullish'].add(pattern_name)
 
             for pattern_name, pattern_fn in bearish_three_candlestick_patterns.items():
                 if pattern_fn(data[i:i+3]):
                     data[i]['bearish'].add(pattern_name)
-                    data[i+1]['bearish'].add(pattern_name)
-                    data[i+2]['bearish'].add(pattern_name)
+                    # data[i+1]['bearish'].add(pattern_name)
+                    # data[i+2]['bearish'].add(pattern_name)
 
         # Check five-candlestick patterns
         if i < n - 4:
             for pattern_name, pattern_fn in bullish_five_candlestick_patterns.items():
                 if pattern_fn(data[i:i+5]):
                     data[i]['bullish'].add(pattern_name)
-                    data[i+1]['bullish'].add(pattern_name)
-                    data[i+2]['bullish'].add(pattern_name)
-                    data[i+3]['bullish'].add(pattern_name)
-                    data[i+4]['bullish'].add(pattern_name)
+                    # data[i+1]['bullish'].add(pattern_name)
+                    # data[i+2]['bullish'].add(pattern_name)
+                    # data[i+3]['bullish'].add(pattern_name)
+                    # data[i+4]['bullish'].add(pattern_name)
 
             for pattern_name, pattern_fn in bearish_five_candlestick_patterns.items():
                 if pattern_fn(data[i:i+5]):
                     data[i]['bearish'].add(pattern_name)
-                    data[i+1]['bearish'].add(pattern_name)
-                    data[i+2]['bearish'].add(pattern_name)
-                    data[i+3]['bearish'].add(pattern_name)
-                    data[i+4]['bearish'].add(pattern_name)
+                    # data[i+1]['bearish'].add(pattern_name)
+                    # data[i+2]['bearish'].add(pattern_name)
+                    # data[i+3]['bearish'].add(pattern_name)
+                    # data[i+4]['bearish'].add(pattern_name)
 
         data[i]['bullish'] = ', '.join(data[i]['bullish'])
         data[i]['bearish'] = ', '.join(data[i]['bearish'])
