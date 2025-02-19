@@ -5,12 +5,91 @@ Sign In - Candalysis
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Sign In</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary mt-3">Sign In</button>
-    </form>
+<style>
+    .signin-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .signin-box {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0px 6px 15px rgba(255, 255, 255, 0.1);
+        text-align: center;
+    }
+
+    .signin-box h2 {
+        color: white;
+        margin-bottom: 20px;
+    }
+
+    .signin-box label {
+        color: white;
+        font-weight: 500;
+    }
+
+    .signin-box input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: none;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .signin-box input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .signin-box .btn {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        background: #007bff;
+        border: none;
+        color: white;
+        font-weight: bold;
+        transition: background 0.3s ease;
+    }
+
+    .signin-box .btn:hover {
+        background: #0056b3;
+    }
+
+    .signin-box a {
+        display: block;
+        margin-top: 10px;
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .signin-box a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="signin-container">
+    <div class="signin-box">
+        <h2>Sign In</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign In</button>
+            <a href="{% url 'signup' %}">Don't have an account? Sign Up</a>
+        </form>
+    </div>
 </div>
 {% endblock %}

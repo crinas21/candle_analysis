@@ -4,7 +4,7 @@ from .forms import CustomUserCreationForm
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from django.contrib.auth import logout
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.files.storage import FileSystemStorage
@@ -163,6 +163,10 @@ def remove_from_watchlist(request):
 @login_required
 def history(request):
     search_history = History.objects.filter(user=request.user).order_by('-search_date')
+    # search_history = History.objects.raw("SELECT id, symbol, days, search_date \
+    #                                       FROM analysis_history \
+    #                                       WHERE user_id = %s \
+    #                                       ORDER BY search_date DESC", [request.user.id])
     return render(request, 'history.html', {'search_history': search_history})
 
 
@@ -178,9 +182,9 @@ def signup(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Your account has been created! You can now sign in.")
-            return redirect('signin')
+            user = form.save() 
+            login(request, user)
+            return redirect('home')
     else:
         form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
@@ -188,5 +192,4 @@ def signup(request):
 
 def signout(request):
     logout(request)
-    messages.success(request, "You have been successfully logged out.")
     return redirect('/')
