@@ -203,7 +203,7 @@ def identify_patterns(data):
     }
 
     bearish_three_candlestick_patterns = {
-        'Evening Stat (3)': is_evening_star,
+        'Evening Star (3)': is_evening_star,
         'Three Black Crows (3)': is_three_black_crows,
         'Three Inside Down (3)': is_three_inside_down,
         'Three Outside Down (3)': is_three_outside_down,

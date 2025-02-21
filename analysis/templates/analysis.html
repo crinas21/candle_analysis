@@ -62,28 +62,73 @@
 
     <nav aria-label="Page navigation">
         <ul class="pagination justify-content-center mt-3">
+            <!-- First and Previous buttons -->
             {% if table_data.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page=1">First</a>
+            </li>
             <li class="page-item">
                 <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ table_data.previous_page_number }}">Previous</a>
             </li>
             {% endif %}
-            
-            {% for num in table_data.paginator.page_range %}
-            <li class="page-item {% if table_data.number == num %}active{% endif %}">
-                <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ num }}">{{ num }}</a>
-            </li>
-            {% endfor %}
-            
+    
+            <!-- If there are 30 or fewer pages, show all -->
+            {% if table_data.paginator.num_pages <= 20 %}
+                {% for num in table_data.paginator.page_range %}
+                    <li class="page-item {% if table_data.number == num %}active{% endif %}">
+                        <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <!-- Show First page -->
+                <li class="page-item {% if table_data.number == 1 %}active{% endif %}">
+                    <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page=1">1</a>
+                </li>
+    
+                <!-- Show ellipsis if the current page is past 4 -->
+                {% if table_data.number > 4 %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+    
+                <!-- Show up to 5 pages around the current page -->
+                {% for num in table_data.paginator.page_range %}
+                    {% if num >= table_data.number|add:"-2" and num <= table_data.number|add:"2" and num != 1 and num != table_data.paginator.num_pages %}
+                    <li class="page-item {% if table_data.number == num %}active{% endif %}">
+                        <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+    
+                <!-- Show ellipsis if current page is far from the last page -->
+                {% if table_data.number < table_data.paginator.num_pages|add:"-3" %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+    
+                <!-- Show Last page -->
+                <li class="page-item {% if table_data.number == table_data.paginator.num_pages %}active{% endif %}">
+                    <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ table_data.paginator.num_pages }}">{{ table_data.paginator.num_pages }}</a>
+                </li>
+            {% endif %}
+    
+            <!-- Next and Last buttons -->
             {% if table_data.has_next %}
             <li class="page-item">
                 <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ table_data.next_page_number }}">Next</a>
             </li>
+            <li class="page-item">
+                <a class="page-link" href="?symbol={{ symbol }}&days={{ days }}&rows_per_page={{ rows_per_page }}&page={{ table_data.paginator.num_pages }}">Last</a>
+            </li>
             {% endif %}
         </ul>
     </nav>
+    
+    
+    
 
-    <div id="candlestick-chart">
-        {{ chart_html|safe }}
+    <div class="card chart-card">
+        <div class="card-body">
+            {{ chart_html|safe }}
+        </div>
     </div>
 </div>
 
