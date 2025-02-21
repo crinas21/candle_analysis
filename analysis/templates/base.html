@@ -13,30 +13,29 @@
             margin: 0;
             font-family: Arial, sans-serif;
             color: white;
-            background-color: #18181b;
-
+            background: linear-gradient(to bottom, #121212, #1f1f1f);
         }
         h1 {
             padding-top: 56px;
         }
         .input-group .form-control {
-            border-top-right-radius: 4px !important; /* Add rounding to the top-right corner */
-            border-bottom-right-radius: 4px !important; /* Add rounding to the bottom-right corner */
+            border-top-right-radius: 4px !important;
+            border-bottom-right-radius: 4px !important;
         }
         .input-group .input-group-text {
-            border-top-left-radius: 4px !important; /* Add rounding to the top-left corner */
-            border-bottom-left-radius: 4px !important; /* Add rounding to the bottom-left corner */
+            border-top-left-radius: 4px !important;
+            border-bottom-left-radius: 4px !important;
         }
         .input-group .form-control:focus {
             box-shadow: none; /* Remove the blue glow */
-            border-color: #ced4da; /* Ensure consistent border color */
+            border-color: #ced4da;
         }
         #autocomplete-list {
-            position: absolute; /* Align relative to the input field */
-            top: 100%; /* Place it below the input field */
+            position: absolute;
+            top: 100%;
             left: 0;
-            z-index: 1050; /* Ensure it appears above other elements */
-            max-height: 200px; /* Limit the height */
+            z-index: 1050;
+            max-height: 200px;
             overflow-y: auto; /* Enable scrolling */
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -55,6 +54,125 @@
         }
         #autocomplete-list .dropdown-item:hover {
             background-color: #f8f9fa;
+        }
+
+        /* Global Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.15);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Highlight the row on hover */
+        .table-hover tbody tr:hover {
+            background-color: #1e2a3a;
+        }
+
+        /* Change symbol text color and add underline on hover */
+        .table-hover tbody tr:hover td:first-child a {
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        /* Default link styling for the symbol */
+        .table-hover tbody tr td:first-child a {
+            color: inherit; /* Keep the normal text color */
+            text-decoration: none;
+        }
+
+        /* Pagination Styles */
+        .pagination .page-item .page-link {
+            background: #1f1f1f;
+            border: 1px solid #444;
+            color: white;
+            height: 36px;
+            line-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #3a506b;
+            border: none;
+            height: 36px;
+            line-height: 24px;
+        }
+
+        .pagination .page-link:hover {
+            background: #506885;
+        }
+
+        .settings-form {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        /* Labels */
+        .settings-form label {
+            color: white;
+            font-weight: 500;
+            margin-right: 5px;
+        }
+
+        .settings-form input {
+            background: #1f1f1f;
+            color: white;
+            border: 1px solid #444;
+            padding: 6px;
+            border-radius: 5px;
+            text-align: center;
+            width: 80px;
+            height: 36px;
+        }
+
+        .settings-form input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .settings-form button {
+            height: 36px;
+            padding: 6px 15px;
+        }
+
+        .btn-defcolor {
+            background-color: #3a506b;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            height: 36px;
+            align-items: center;
+        }
+
+        .btn-defcolor:hover {
+            background-color: #506885;
+            color: white;
         }
     </style>
 

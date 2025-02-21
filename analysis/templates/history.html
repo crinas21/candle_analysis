@@ -6,33 +6,13 @@ History - Candalysis
 
 {% block content %}
 <h1>Search History</h1>
-
-<style>
-    /* Highlight the row on hover */
-    .table-hover tbody tr:hover {
-        background-color: #8ae8ff;
-    }
-
-    /* Ensure the symbol text changes color and becomes underlined on row hover */
-    .table-hover tbody tr:hover td:first-child a {
-        color: #007bff !important; /* Change text color */
-        text-decoration: underline !important; /* Add underline */
-    }
-
-    /* Default link styling for the symbol */
-    .table-hover tbody tr td:first-child a {
-        color: inherit; /* Keep the normal text color */
-        text-decoration: none; /* Remove underline */
-    }
-</style>
-
 <!-- Clear History Button -->
 <form method="post" action="{% url 'clear_history' %}" style="margin-bottom: 20px;">
     {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Clear All History</button>
+    <button type="submit" class="btn btn-defcolor">Clear All History</button>
 </form>
 
-<table class="table table-striped table-hover">
+<table class="table-hover mb-5">
     <thead>
         <tr>
             <th>Symbol</th>

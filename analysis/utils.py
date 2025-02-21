@@ -122,14 +122,34 @@ def get_chart_html(pattern_data):
     )
 
     fig.update_layout(
-        xaxis=dict(showgrid=True),
-        yaxis=dict(showgrid=True),
-        legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
-        height=800,
-        paper_bgcolor="#18181b"
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white',
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            color='white',
+        ),
+        plot_bgcolor="rgba(0, 0, 0, 0)",  # Transparent background
+        paper_bgcolor="rgba(0, 0, 0, 0)",  # Transparent outer area
+        font=dict(
+            color="white"  # White text for labels
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.3,
+            xanchor="center",
+            x=0.5,
+            font=dict(color="white")  # White legend text
+        ),
+        height=800
     )
     chart_html = fig.to_html(full_html=False) # Only return chart content
     return chart_html
+
 
 
 def identify_patterns(data):
