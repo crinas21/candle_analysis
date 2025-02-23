@@ -278,15 +278,10 @@ def identify_patterns(data):
     return data
 
 
-def identify_image_patterns(image_path):
+def identify_image_patterns(image_stream):
     try:
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-        with open(image_path, "rb") as image_file:
-            base64_image = base64.b64encode(image_file.read()).decode("utf-8")
-
-        # Add a delay to avoid hitting rate limits
-        time.sleep(1)
-
+        base64_image = base64.b64encode(image_stream.getvalue()).decode("utf-8")
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[

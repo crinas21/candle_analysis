@@ -1,3 +1,5 @@
+import base64
+import io
 import os
 from . import utils
 from .models import History, WatchlistItems
@@ -105,20 +107,15 @@ def imageinsert(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('image')
         if uploaded_file:
-            fs = FileSystemStorage(location=settings.MEDIA_ROOT)
-            filename = fs.save(uploaded_file.name, uploaded_file)
-            file_path = fs.url(filename)
-
-            # Send the image to OpenAI
-            response = utils.identify_image_patterns(os.path.join(settings.MEDIA_ROOT, filename))
-            print(response)
-            response = response.replace(" **", "<b>")
-            response = response.replace("**:", ": </b>")
-            response = response.replace("\n", "")
+            image_stream = io.BytesIO(uploaded_file.read())
+            base64_image = base64.b64encode(image_stream.getvalue()).decode("utf-8")
+            image_url = f"data:image/png;base64,{base64_image}"
+            
+            response = utils.identify_image_patterns(image_stream)
+            response = response.replace(" **", "<b>").replace("**:", ": </b>").replace("\n", "")
             response_ls = response.split("+")[1:] if response else []
-            print(response_ls)
 
-            return render(request, 'imageanalysis.html', {'image_url': file_path,'analysis_result': response_ls})
+            return render(request, 'imageanalysis.html', {'image_url': image_url,'analysis_result': response_ls})
         else:
             messages.error(request, "No image uploaded")
             return redirect('imageinsert')
