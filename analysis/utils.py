@@ -1,7 +1,10 @@
+import base64
+import openai
 import requests
+import time
+import plotly.graph_objects as go
 from .patterns import *
 from django.conf import settings
-import plotly.graph_objects as go
 
 
 def get_matches(query):
@@ -135,7 +138,7 @@ def get_chart_html(pattern_data):
         plot_bgcolor="rgba(0, 0, 0, 0)",  # Transparent background
         paper_bgcolor="rgba(0, 0, 0, 0)",  # Transparent outer area
         font=dict(
-            color="white"  # White text for labels
+            color="white"
         ),
         legend=dict(
             orientation="h",
@@ -143,7 +146,7 @@ def get_chart_html(pattern_data):
             y=-0.3,
             xanchor="center",
             x=0.5,
-            font=dict(color="white")  # White legend text
+            font=dict(color="white")
         ),
         height=800
     )
@@ -273,3 +276,28 @@ def identify_patterns(data):
         data[i]['bearish'] = ', '.join(data[i]['bearish'])
 
     return data
+
+
+def identify_image_patterns(image_path):
+    try:
+        client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+        with open(image_path, "rb") as image_file:
+            base64_image = base64.b64encode(image_file.read()).decode("utf-8")
+
+        # Add a delay to avoid hitting rate limits
+        time.sleep(1)
+
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are an expert in identifying candlestick patterns from stock charts."},
+                {"role": "user", "content": "Identify the candlestick patterns in this image and structure your response in only a clear bullet-point list (with + signs as the bullet points) without no other text. Try to focus more on patterns that might be at the end (right) of the chart, but still identify any patterns you can.\nEach pattern should be presented as follows:\n+ **<Pattern Name>**: <Identification of where the pattern is on the chart>. <Explanation of what traders might do in response to this pattern>.\n"},
+                {"role": "user", "content": [{"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}}]}
+            ],
+        )
+        return response.choices[0].message.content
+
+    except openai.RateLimitError:
+        return "OpenAI API rate limit exceeded. Try again later."
+    except openai.OpenAIError as e:
+        return f"OpenAI API error: {str(e)}"

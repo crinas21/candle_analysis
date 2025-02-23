@@ -72,7 +72,7 @@
             </li>
             {% endif %}
     
-            <!-- If there are 30 or fewer pages, show all -->
+            <!-- If there are 20 or fewer pages, show all -->
             {% if table_data.paginator.num_pages <= 20 %}
                 {% for num in table_data.paginator.page_range %}
                     <li class="page-item {% if table_data.number == num %}active{% endif %}">
@@ -123,8 +123,6 @@
     </nav>
     
     
-    
-
     <div class="card chart-card">
         <div class="card-body">
             {{ chart_html|safe }}

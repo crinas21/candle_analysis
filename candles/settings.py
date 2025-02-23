@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from decouple import config
 import os
+import openai
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -152,3 +153,5 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 ALPHA_VANTAGE_API_KEY = config('ALPHA_VANTAGE_API_KEY', default='')
+OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
+openai.api_key = OPENAI_API_KEY

@@ -1,3 +1,4 @@
+import os
 from . import utils
 from .models import History, WatchlistItems
 from .forms import CustomUserCreationForm
@@ -9,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
@@ -103,18 +105,25 @@ def imageinsert(request):
     if request.method == 'POST':
         uploaded_file = request.FILES.get('image')
         if uploaded_file:
-            fs = FileSystemStorage()
+            fs = FileSystemStorage(location=settings.MEDIA_ROOT)
             filename = fs.save(uploaded_file.name, uploaded_file)
-            file_url = fs.url(filename)
-            # CNN logic
-            messages.success(request, "Image successfully uploaded")
-            return render(request, 'imageanalysis.html')
+            file_path = fs.url(filename)
+
+            # Send the image to OpenAI
+            response = utils.identify_image_patterns(os.path.join(settings.MEDIA_ROOT, filename))
+            print(response)
+            response = response.replace(" **", "<b>")
+            response = response.replace("**:", ": </b>")
+            response = response.replace("\n", "")
+            response_ls = response.split("+")[1:] if response else []
+            print(response_ls)
+
+            return render(request, 'imageanalysis.html', {'image_url': file_path,'analysis_result': response_ls})
         else:
             messages.error(request, "No image uploaded")
-            return render(request, 'imageinsert.html')
-    else:
-        return render(request, 'imageinsert.html')
-    
+            return redirect('imageinsert')
+    return render(request, 'imageinsert.html')
+
 
 def imageanalysis(request):
     return render(request, 'imageanalysis.html')
